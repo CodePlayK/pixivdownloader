@@ -33,6 +33,7 @@ public class PixivDownloaderRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        LOGGER.info("初始化......");
         filesUtils.getDir();
         cookieUtils.getCookies();
 
