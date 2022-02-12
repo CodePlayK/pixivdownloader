@@ -1,0 +1,7 @@
+*********************以下每一行只能修改等号后的内容,等号前的内容修改会导致无效*************************
+R18图片保存路径=D:\onedrive\Pixiv\R18\
+R18G图片保存路径=D:\onedrive\Pixiv\R18G\
+R18-GIF图片保存路径=D:\onedrive\Pixiv\GIF\R18-GIF\
+R18G-GIF图片保存路径=D:\onedrive\Pixiv\GIF\R18G-GIF\
+非涩图保存路径=D:\onedrive\Pixiv\NONEH\
+排行榜图片路径=D:\onedrive\Pixiv\RANKING\
