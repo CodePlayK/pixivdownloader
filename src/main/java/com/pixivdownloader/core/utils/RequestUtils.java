@@ -183,11 +183,16 @@ public class RequestUtils {
         return requestPreset(url, HttpMethod.GET).getBody();
     }
 
+    /***
+     * 一般请求
+     * @param url
+     * @param httpMethod
+     * @return
+     */
     public ResponseEntity<String> requestPreset(String url, HttpMethod httpMethod) {
         String PHPSESSID = "PHPSESSID=" + cookieUtils.getPHPSESSID() + "; Path=/; Domain=pixiv.net; Secure; HttpOnly;";
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = new HttpHeaders();
-        //httpHeaders.add("referer", EntityPreset.HttpEnum.REFERER.getUrl());
         httpHeaders.add(HttpHeaders.COOKIE, PHPSESSID);
         httpHeaders.add("user-agent", EntityPreset.HttpEnum.USERAGENT.getUrl());
         SimpleClientHttpRequestFactory simpleClientHttpRequestFactory = new SimpleClientHttpRequestFactory();
@@ -198,6 +203,12 @@ public class RequestUtils {
         return restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
     }
 
+    /***
+     * 下载请求
+     * @param url
+     * @param httpMethod
+     * @return
+     */
     public ResponseEntity<byte[]> requestStreamPreset(String url, HttpMethod httpMethod) {
         String PHPSESSID = "PHPSESSID=" + cookieUtils.getPHPSESSID() + "; Path=/; Domain=pixiv.net; Secure; HttpOnly;";
         RestTemplate restTemplate = new RestTemplate();

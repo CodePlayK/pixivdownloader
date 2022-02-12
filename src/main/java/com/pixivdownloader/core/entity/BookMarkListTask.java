@@ -38,9 +38,6 @@ public class BookMarkListTask implements Callable {
             LOGGER.info("开始获取第{}页收藏……", i);
             String url = BOOKMARKLISTURL + i;
             ResponseEntity<String> responseEntity = requestUtils.requestPreset(url, HttpMethod.GET);
-            if (Objects.requireNonNull(responseEntity.getBody()).contains("17955206")) {
-                //LOGGER.info(responseEntity.getBody());
-            }
             Objects.requireNonNull(bookmarkList).addAll(Objects.requireNonNull(JSON.parseArray(StringUtils.substringBetween(responseEntity.getBody(), "\"bookmarks\":", "],\"total\"") + "]", Bookmark.class)));
         }
         return bookmarkList;
