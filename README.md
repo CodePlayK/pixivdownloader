@@ -1,5 +1,5 @@
 # pixivdownloader
-下载p站个人收藏夹与7日内的排行榜,包括gif，需要谷歌浏览器与自备vpn; download users favorite pic(gif)&amp;ranking from Pixiv,Chrome and vpn needed.
+下载p站个人收藏夹与7日内的排行榜,包括gif，需要谷歌浏览器与自备vpn; 
 
 个人为防止猎巫活动对蓝p站的本地备份(
 ## 功能
