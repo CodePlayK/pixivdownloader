@@ -11,8 +11,10 @@
 
 - 在path.properties中配置config.txt的位置
 
-- 使用Chrome登录P站(需要保证使用的Chrome版本的cookie的储存目录为C:\Users\Administrator\AppData\Local\Google\Chrome\User Data\Default\Network\Cookies)
-
+- 使用Chrome登录P站
+`
+需要保证使用的Chrome版本的cookie的储存目录为C:\Users\Administrator\AppData\Local\Google\Chrome\User Data\Default\Network\Cookies
+`
 - 登录vpn
 
 - 运行jar包
