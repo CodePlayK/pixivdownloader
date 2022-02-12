@@ -10,6 +10,7 @@
 - 在config.txt文件中分别配置各图片下载目标路径,并存放在任意位置
 
 - 在path.properties中配置config.txt的位置
+- 在except.properties中配置要过滤的关键字(针对排行榜)
 
 - 使用Chrome登录P站
 `
