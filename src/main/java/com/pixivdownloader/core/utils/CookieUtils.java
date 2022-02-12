@@ -234,7 +234,6 @@ public class CookieUtils {
 
     public void getWindowsKey() {
         // Inspired by https://stackoverflow.com/a/65953409/1631104
-
         // Get encrypted master key
         String pathLocalState = System.getProperty("user.home") + "/AppData/Local/Google/Chrome/User Data/Local State";
         File localStateFile = new File(pathLocalState);
