@@ -21,7 +21,7 @@
 - 运行jar包
 ## 相关项目
 
-[获取浏览器cookies与解析](https://github.com/benjholla/CookieMonster.git)
+[CookieMonster获取浏览器cookies与解析](https://github.com/benjholla/CookieMonster.git)
 
 [Animated GIF Encoder图片转GIF](https://github.com/madmaw/animatedgifencoder.git)
 
