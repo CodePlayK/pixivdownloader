@@ -25,7 +25,6 @@ public interface EntityPreset {
 
     enum RankingType {
         DAILY_R18("daily_r18"),
-        //WEEKLY_R18("weekly_r18"),
         R18G("r18g");
         String rankingTyoe;
 

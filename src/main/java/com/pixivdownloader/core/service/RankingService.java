@@ -185,7 +185,6 @@ public class RankingService extends PicService {
             }
         }
 
-        //return list2;
         LOGGER.warn("共获取到{}张图片,跳过{}条,实际需要下载{}条!", ids.size(), ids.size() - list2.size(), list2.size());
         return list2;
     }
