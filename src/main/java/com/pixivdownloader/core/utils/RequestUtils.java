@@ -48,13 +48,13 @@ public class RequestUtils {
         int end = part;
         for (int i = 0; i < partNum; i++) {
             if (i < partNum - 1) {
-                List<Bookmark> list1 = new ArrayList<>();
+                List<Bookmark> list1;
                 list1 = list.subList(bg, end);
                 bg = end + 1;
                 end = end + part;
                 set.add(list1);
             } else {
-                List<Bookmark> list1 = new ArrayList<>();
+                List<Bookmark> list1;
                 end = list.size() - 1;
                 list1 = list.subList(bg, end);
                 set.add(list1);
@@ -80,13 +80,13 @@ public class RequestUtils {
         int end = part;
         for (int i = 0; i < partNum; i++) {
             if (i < partNum - 1) {
-                List<RankingPic> list1 = new ArrayList<>();
+                List<RankingPic> list1;
                 list1 = list.subList(bg, end);
                 bg = end + 1;
                 end = end + part;
                 set.add(list1);
             } else {
-                List<RankingPic> list1 = new ArrayList<>();
+                List<RankingPic> list1;
                 end = list.size() - 1;
                 list1 = list.subList(bg, end);
                 set.add(list1);

@@ -110,11 +110,11 @@ public class PicService {
                             responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
                         } catch (RestClientException restClientException) {
                             LOGGER.info("文件类型错误！修改重试……");
-                                bookmark.setFilType(EntityPreset.FileType.GIF.getFileType());
-                                fileName = getFileName(bookmark, i, temptags);
-                                fileName = filesUtils.cutFileName(fileName, bookmark, i, bookmark.getFilType());
-                                url = PICURL.getUrl() + bookmark.getUrlS() + "_p" + i + EntityPreset.FileType.GIF.getFileType();
-                                f = new File(pathName + fileName);
+                            bookmark.setFilType(EntityPreset.FileType.GIF.getFileType());
+                            fileName = getFileName(bookmark, i, temptags);
+                            fileName = filesUtils.cutFileName(fileName, bookmark, i, bookmark.getFilType());
+                            url = PICURL.getUrl() + bookmark.getUrlS() + "_p" + i + EntityPreset.FileType.GIF.getFileType();
+                            f = new File(pathName + fileName);
                             try {
                                 responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
                             } catch (Exception exception) {

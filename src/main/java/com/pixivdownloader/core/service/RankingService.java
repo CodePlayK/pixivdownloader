@@ -179,9 +179,6 @@ public class RankingService extends PicService {
             if (c < rankingPic.getPageCount()) {
                 list2.add(rankingPic);
                 LOGGER.info("图片加入下载队列!{}", rankingPic.getTitle());
-            } else {
-                //LOGGER.info("图片已存在,跳过!{}", rankingPic.getTitle());
-
             }
         }
 
@@ -261,11 +258,11 @@ public class RankingService extends PicService {
                             responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
                         } catch (RestClientException restClientException) {
                             LOGGER.info("文件类型错误！修改重试……");
-                                bookmark.setFilType(EntityPreset.FileType.GIF.getFileType());
-                                fileName = getRaningFileName(bookmark, i, temptags);
-                                fileName = filesUtils.cutRankingFileName(fileName, bookmark, i, bookmark.getFilType());
-                                url = PICURL.getUrl() + bookmark.getUrlS() + "_p" + i + EntityPreset.FileType.GIF.getFileType();
-                                f = new File(path + fileName);
+                            bookmark.setFilType(EntityPreset.FileType.GIF.getFileType());
+                            fileName = getRaningFileName(bookmark, i, temptags);
+                            fileName = filesUtils.cutRankingFileName(fileName, bookmark, i, bookmark.getFilType());
+                            url = PICURL.getUrl() + bookmark.getUrlS() + "_p" + i + EntityPreset.FileType.GIF.getFileType();
+                            f = new File(path + fileName);
                             try {
                                 responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
                             } catch (Exception exception) {

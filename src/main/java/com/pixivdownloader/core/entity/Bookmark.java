@@ -21,6 +21,7 @@ public class Bookmark {
     private String urlSm;
     private String urlSs;
     private String type;
+    private String page;
 
     public Bookmark() {
 
@@ -85,9 +86,10 @@ public class Bookmark {
 
     public void setBookmarkId(String bookmarkId) {
         if (bookmarkId.isEmpty()) {
-            bookmarkId = ("0000000");
+            this.bookmarkId = ("0000000");
         }
-        this.bookmarkId = bookmarkId;
+        String newIndex = StringUtils.substring(bookmarkId, 0, bookmarkId.length() - 1);
+        this.bookmarkId = newIndex;
     }
 
     public String getFilType() {
