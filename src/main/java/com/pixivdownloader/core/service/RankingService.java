@@ -244,7 +244,6 @@ public class RankingService extends PicService {
                 } else {
                     try {
                         responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
-                        ;
                     } catch (RestClientException e) {
                         LOGGER.info("文件类型错误！修改重试……");
                         if (EntityPreset.FileType.JPG.getFileType().equals(bookmark.getFilType())) {

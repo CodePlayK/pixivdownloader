@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,11 +73,11 @@ public class FilesUtils {
     public FilePathProperties getDir() {
         LOCALPATH = pathProperties.getConfigFilePath();
         ApplicationHome ah = new ApplicationHome(FilesUtils.class);
-        File file = new File(String.valueOf(LOCALPATH + "config.txt"));
+        File file = new File(LOCALPATH + "config.txt");
         if (!file.exists()) {
             LOCALPATH = ah.getDir() + "\\";
         }
-        file = new File(String.valueOf(LOCALPATH + "config.txt"));
+        file = new File(LOCALPATH + "config.txt");
         /*
         打包后在非工程目录下运行jar包时启用此方法
         */
@@ -85,7 +86,7 @@ public class FilesUtils {
         LOGGER.info("当前目录:{}", file.getAbsolutePath());
         HashMap<String, String> map = new HashMap<>();
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
             String s = null;
             String s1 = null;
             while ((s = br.readLine()) != null) {//使用readLine方法，一次读一行
@@ -235,11 +236,7 @@ public class FilesUtils {
             return false;
         }
         //删除当前目录
-        if (dirFile.delete()) {
-            return true;
-        } else {
-            return false;
-        }
+        return dirFile.delete();
     }
 
     /**
@@ -294,7 +291,6 @@ public class FilesUtils {
             fileName =
                     bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
                             + "_p" + pageNum + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + bookmark.getFilType();
-            ;
         }
         return fileName;
     }
