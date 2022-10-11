@@ -20,6 +20,7 @@ import org.springframework.web.client.RestClientException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -41,7 +42,7 @@ public class PicService {
     private GifUtils gifUtils;
     @Autowired
     private UnZipUtils unZipUtils;
-
+    protected static final int COMIC_SIZE = 35;
 
     /**
      * 收藏获取图片
@@ -59,10 +60,19 @@ public class PicService {
             Bookmark bookmark = bookmarkList.get(i1);
             if ("R-18G".equals(bookmark.getTags().get(0))) {
                 pathName = filePathProperties.getR18GPATH();
+                if (bookmark.getPageCount() > COMIC_SIZE) {
+                    pathName = filePathProperties.getR18GCOMICPATH();
+                }
             } else if ("R-18".equals(bookmark.getTags().get(0))) {
                 pathName = filePathProperties.getR18PATH();
+                if (bookmark.getPageCount() > COMIC_SIZE) {
+                    pathName = filePathProperties.getR18COMICPATH();
+                }
             } else {
                 pathName = filePathProperties.getNONEHPATH();
+                if (bookmark.getPageCount() > COMIC_SIZE) {
+                    pathName = filePathProperties.getNONEHCOMICPATH();
+                }
             }
             LOGGER.info("开始下载第[{}/{}]条:{}", i1, bookmarkList.size(), bookmark.getTitle());
             if ("2".equals(bookmark.getType())) {
@@ -151,9 +161,16 @@ public class PicService {
         java.text.NumberFormat numberformat = java.text.NumberFormat.getInstance();
         numberformat.setMaximumFractionDigits(2);
         LocalDateTime dt = LocalDateTime.now();
-        LOGGER.warn("P站涩图下载结束!!!" + dt.getYear() + "年" + dt.getMonth() + "月" + dt.getDayOfMonth() + " " + dt.getHour() + "点" + dt.getMinute()
-                + "分:本次下载完毕，收藏共:" + totalCount + "条，跳过:" + skipCount + "条，应下载:" +
-                (totalCount - skipCount) + "条，下载成功:" + successCount + "条，成功率:" + new BigDecimal(successCount * 100).divide(new BigDecimal(totalCount - skipCount + 1), 2, BigDecimal.ROUND_HALF_UP) + "%");
+        if (totalCount - skipCount == 0) {
+            LOGGER.warn("P站涩图下载结束!!!" + dt.getYear() + "年" + dt.getMonth() + "月" + dt.getDayOfMonth() + " " + dt.getHour() + "点" + dt.getMinute()
+                    + "分:本次下载完毕，收藏共:" + totalCount + "条，跳过:" + skipCount + "条，应下载:" +
+                    (totalCount - skipCount) + "条，下载成功:" + successCount + "条.");
+        } else {
+            LOGGER.warn("P站涩图下载结束!!!" + dt.getYear() + "年" + dt.getMonth() + "月" + dt.getDayOfMonth() + " " + dt.getHour() + "点" + dt.getMinute()
+                    + "分:本次下载完毕，收藏共:" + totalCount + "条，跳过:" + skipCount + "条，应下载:" +
+                    (totalCount - skipCount) + "条，下载成功:" + successCount + "条，成功率:" + new BigDecimal(successCount * 100).
+                    divide(new BigDecimal(totalCount - skipCount), 2, RoundingMode.HALF_UP) + "%");
+        }
     }
 
     /**
@@ -272,7 +289,6 @@ public class PicService {
                 fileName = StringUtils.substringBefore(fileName, GIF.getFileType()) + ZIP.getFileType();
                 f = new File(pathName + fileName);
                 ResponseEntity<byte[]> bytes = requestUtils.requestStreamPreset(url, HttpMethod.GET);
-                ;
                 if (!f.exists()) {
                     try {
                         f.createNewFile();

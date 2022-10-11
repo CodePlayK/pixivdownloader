@@ -112,6 +112,21 @@ public class FilesUtils {
                         map.put("R18GGIF", StringUtils.substringAfter(s, "="));
                         createDir(s, s1);
                         break;
+                    case "R18-COMIC图片保存路径":
+                        s1 = "R18-COMIC图片保存路径";
+                        map.put("R18COMIC", StringUtils.substringAfter(s, "="));
+                        createDir(s, s1);
+                        break;
+                    case "R18G-COMIC图片保存路径":
+                        s1 = "R18G-COMIC图片保存路径";
+                        map.put("R18GCOMIC", StringUtils.substringAfter(s, "="));
+                        createDir(s, s1);
+                        break;
+                    case "NONEH-COMIC图片保存路径":
+                        s1 = "NONEH-COMIC图片保存路径";
+                        map.put("NONEHCOMIC", StringUtils.substringAfter(s, "="));
+                        createDir(s, s1);
+                        break;
                     case "非涩图保存路径":
                         s1 = "非涩图保存路径";
                         map.put("NONEH", StringUtils.substringAfter(s, "="));
@@ -149,11 +164,39 @@ public class FilesUtils {
             map.put("R18GGIF", LOCALPATH + "GIF\\R18G\\");
             createDir(":" + LOCALPATH + "GIF\\R18G\\", "R18G-GIF图片保存路径");
         }
+        if (!map.containsKey("R18COMIC")) {
+            LOGGER.warn("config文件中未找到[R18-COMIC图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "COMIC\\R18-COMIC\\");
+            map.put("R18COMIC", LOCALPATH + "COMIC\\R18-COMIC\\");
+            createDir(":" + LOCALPATH + "COMIC\\R18-COMIC\\", "R18-COMIC图片保存路径");
+        }
+        if (!map.containsKey("R18GCOMIC")) {
+            LOGGER.warn("config文件中未找到[R18G-COMIC图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "COMIC\\R18G-COMIC\\");
+            map.put("R18GCOMIC", LOCALPATH + "COMIC\\R18G-COMIC\\");
+            createDir(":" + LOCALPATH + "COMIC\\R18G-COMIC\\", "R18G-COMIC图片保存路径");
+        }
+        if (!map.containsKey("NONEHCOMIC")) {
+            LOGGER.warn("config文件中未找到[NONEH-COMIC图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "COMIC\\NONEH-COMIC\\");
+            map.put("NONEHCOMIC", LOCALPATH + "COMIC\\NONEH-COMIC\\");
+            createDir(":" + LOCALPATH + "COMIC\\NONEH-COMIC\\", "NONEH-COMIC图片保存路径");
+        }
+        if (!map.containsKey("NONEH")) {
+            LOGGER.warn("config文件中未找到[NONEH图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "NONEH\\");
+            map.put("NONEH", LOCALPATH + "NONEH\\");
+            createDir(":" + LOCALPATH + "NONEH\\", "非涩图保存路径");
+        }
+        if (!map.containsKey("RANKING")) {
+            LOGGER.warn("config文件中未找到[RANKING图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "RANKING\\");
+            map.put("RANKING", LOCALPATH + "RANKING\\");
+            createDir(":" + LOCALPATH + "RANKING\\", "排行榜图片路径");
+        }
         LOGGER.warn(map);
         filePathProperties.setR18PATH(map.get("R18"));
         filePathProperties.setR18GPATH(map.get("R18G"));
         filePathProperties.setR18GIFPATH(map.get("R18GIF"));
         filePathProperties.setR18GGIFPATH(map.get("R18GGIF"));
+        filePathProperties.setR18COMICPATH(map.get("R18COMIC"));
+        filePathProperties.setR18GCOMICPATH(map.get("R18GCOMIC"));
+        filePathProperties.setNONEHCOMICPATH(map.get("NONEHCOMIC"));
         filePathProperties.setNONEHPATH(map.get("NONEH"));
         filePathProperties.setRANKING(map.get("RANKING"));
         return filePathProperties;

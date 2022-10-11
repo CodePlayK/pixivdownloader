@@ -12,17 +12,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class test {
     @Test
     void moveNonehPic() throws IOException {
-        File f = new File("D:\\onedrive\\Pixiv\\R18\\");
+        File f = new File("E:\\Pixiv\\R18\\");
         for (String s : f.list()) {
             if (!s.contains("R-18")) {
-                Path p1 = Paths.get("D:\\onedrive\\Pixiv\\R18\\" + s);
-                Path p2 = Paths.get("D:\\onedrive\\Pixiv\\NONEH\\" + s);
+                Path p1 = Paths.get("E:\\Pixiv\\R18\\" + s);
+                Path p2 = Paths.get("E:\\Pixiv\\NONEH\\" + s);
                 Files.move(p1, p2, StandardCopyOption.REPLACE_EXISTING);
             }
         }
@@ -51,9 +54,47 @@ public class test {
             String name = StringUtils.substringAfter(s, "_");
             String newIndex = StringUtils.substring(oldIndex, 0, oldIndex.length() - 1);
             File newFile = new File("E:\\Pixiv\\NONEH\\" + newIndex + "_" + name);
-            System.out.println(oldIndex+"-->"+newIndex);
+            System.out.println(oldIndex + "-->" + newIndex);
             file.renameTo(newFile);
         }
 
+    }
+
+    @Test
+    void moveComic() throws IOException {
+        File R18 = new File("E:\\Pixiv\\R18\\");
+        File R18G = new File("E:\\Pixiv\\R18G\\");
+        File NONEH = new File("E:\\Pixiv\\NONEH\\");
+        File CR18G = new File("E:\\Pixiv\\COMIC\\R18G-COMIC\\");
+        File CR18 = new File("E:\\Pixiv\\COMIC\\R18-COMIC\\");
+        File CNONEH = new File("E:\\Pixiv\\COMIC\\NONEH-COMIC\\");
+        moveComicByFile(R18G, CR18G);
+
+    }
+
+    private List<String> filterFileListByMinCount(List<String> list, int minCount) {
+        Map<String, Long> countMap = list.stream().collect(Collectors.groupingBy(o -> StringUtils.substringBefore(o, "_"), Collectors.counting()));
+        LinkedList<String> linkedList = new LinkedList<>();
+        countMap.entrySet().stream().filter(o -> (o.getValue() > minCount)).forEach(o -> {
+            linkedList.add(o.getKey());
+        });
+        return linkedList;
+    }
+
+    private void moveComicByFile(File source, File target) throws IOException {
+        String[] list = source.list();
+        List<String> list1 = Arrays.asList(list);
+        List<String> list2 = filterFileListByMinCount(list1, 35);
+        list2.size();
+        String s1 = "";
+        for (String s : list1) {
+            s1 = StringUtils.substringBefore(s, "_");
+            if (list2.contains(s1)) {
+                Path p1 = Paths.get(source.getPath() + "\\" + s);
+                Path p2 = Paths.get(target.getPath() + "\\" + s);
+                Files.move(p1, p2, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("移动完成:" + s);
+            }
+        }
     }
 }

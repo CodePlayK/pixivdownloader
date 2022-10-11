@@ -13,6 +13,9 @@ public class FilePathProperties {
     String R18GPATH;
     String R18GIFPATH;
     String R18GGIFPATH;
+    String R18COMICPATH;
+    String R18GCOMICPATH;
+    String NONEHCOMICPATH;
     String NONEHPATH;
     String RANKING;
 
