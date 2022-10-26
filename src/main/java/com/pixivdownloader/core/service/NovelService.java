@@ -142,6 +142,10 @@ public class NovelService {
     }
 
     private void writeSaveNovel(String localPath, StringBuilder stringBuilder, StringBuilder stringBuilder1, NovelRanking novelRanking, Set<Integer> fileSet, String fileType, boolean saveFlag) throws IOException {
+        if (fileSet.contains(novelRanking.getNovelId())) {
+            LOGGER.warn("[{}]TXT已存在于本地文件,跳过!", novelRanking.getNovelId());
+            return;
+        }
         String body = "";
         try {
             ResponseEntity<String> responseEntity = requestUtils.requestPreset(EntityPreset.HttpEnum.NOVEL_DETAIL_URL.getUrl() + novelRanking.getNovelId(), HttpMethod.GET);
@@ -185,10 +189,6 @@ public class NovelService {
 
     private void writeFile(String localPath, StringBuilder stringBuilder, StringBuilder stringBuilder1, Novel novel, NovelPo novelpo, Set<Integer> fileSet) throws IOException {
         String fileName = getFileName(stringBuilder, stringBuilder1, novel, localPath, novelpo);
-        if (fileSet.contains(novelpo.getNovelId())) {
-            LOGGER.warn("[{}]TXT已存在于本地文件,跳过!", fileName);
-            return;
-        }
         FileWriter fileWriter = new FileWriter(fileName);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         bufferedWriter.write(novelpo.getText());
