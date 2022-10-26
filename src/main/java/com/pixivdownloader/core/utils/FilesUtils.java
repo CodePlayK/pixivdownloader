@@ -1,7 +1,7 @@
 package com.pixivdownloader.core.utils;
 
 import com.pixivdownloader.core.entity.Bookmark;
-import com.pixivdownloader.core.entity.RankingPic;
+import com.pixivdownloader.core.entity.ranking.RankingPic;
 import com.pixivdownloader.core.properties.FilePathProperties;
 import com.pixivdownloader.core.properties.PathProperties;
 import org.apache.commons.lang3.StringUtils;
@@ -137,6 +137,23 @@ public class FilesUtils {
                         map.put("RANKING", StringUtils.substringAfter(s, "="));
                         createDir(s, s1);
                         break;
+                    case "R18小说排行榜保存路径":
+                        s1 = "R18小说排行榜保存路径";
+                        map.put("R18NOVELRANKING", StringUtils.substringAfter(s, "="));
+                        createDir(s, s1);
+                        break;
+
+                    case "R18G小说排行榜保存路径":
+                        s1 = "R18G小说排行榜保存路径";
+                        map.put("R18GNOVELRANKING", StringUtils.substringAfter(s, "="));
+                        createDir(s, s1);
+                        break;
+
+                    case "小说收藏保存路径":
+                        s1 = "小说收藏保存路径";
+                        map.put("NOVELPATH", StringUtils.substringAfter(s, "="));
+                        createDir(s, s1);
+                        break;
                     default:
                 }
             }
@@ -189,6 +206,21 @@ public class FilesUtils {
             map.put("RANKING", LOCALPATH + "RANKING\\");
             createDir(":" + LOCALPATH + "RANKING\\", "排行榜图片路径");
         }
+        if (!map.containsKey("R18NOVELRANKING")) {
+            LOGGER.warn("config文件中未找到[R18NOVELRANKING小说排行榜保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "NOVEL\\RANKING\\R18\\");
+            map.put("R18NOVELRANKING", LOCALPATH + "NOVEL\\RANKING\\R18\\");
+            createDir(":" + LOCALPATH + "NOVEL\\RANKING\\R18\\", "R18小说排行榜保存路径");
+        }
+        if (!map.containsKey("R18GNOVELRANKING")) {
+            LOGGER.warn("config文件中未找到[R18GNOVELRANKING小说排行榜保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "NOVEL\\RANKING\\R18G\\");
+            map.put("R18GNOVELRANKING", LOCALPATH + "NOVEL\\RANKING\\R18G\\");
+            createDir(":" + LOCALPATH + "NOVEL\\RANKING\\R18G\\", "R18G小说排行榜保存路径");
+        }
+        if (!map.containsKey("NOVELPATH")) {
+            LOGGER.warn("config文件中未找到[NOVELPATH小说收藏保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "NOVEL\\FAVORITE\\");
+            map.put("R18GNOVELRANKING", LOCALPATH + "NOVEL\\FAVORITE\\");
+            createDir(":" + LOCALPATH + "NOVEL\\FAVORITE\\", "NOVELPATH小说收藏保存路径");
+        }
         LOGGER.warn(map);
         filePathProperties.setR18PATH(map.get("R18"));
         filePathProperties.setR18GPATH(map.get("R18G"));
@@ -199,6 +231,9 @@ public class FilesUtils {
         filePathProperties.setNONEHCOMICPATH(map.get("NONEHCOMIC"));
         filePathProperties.setNONEHPATH(map.get("NONEH"));
         filePathProperties.setRANKING(map.get("RANKING"));
+        filePathProperties.setR18GNOVELRANKING(map.get("R18GNOVELRANKING"));
+        filePathProperties.setR18NOVELRANKING(map.get("R18NOVELRANKING"));
+        filePathProperties.setNOVELPATH(map.get("NOVELPATH"));
         return filePathProperties;
     }
 

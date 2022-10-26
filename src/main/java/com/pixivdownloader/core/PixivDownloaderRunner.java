@@ -2,8 +2,9 @@ package com.pixivdownloader.core;
 
 import com.pixivdownloader.core.constance.EntityPreset;
 import com.pixivdownloader.core.entity.Bookmark;
-import com.pixivdownloader.core.entity.RankingPic;
+import com.pixivdownloader.core.entity.ranking.RankingPic;
 import com.pixivdownloader.core.service.BookMarkListService;
+import com.pixivdownloader.core.service.NovelService;
 import com.pixivdownloader.core.service.RankingService;
 import com.pixivdownloader.core.utils.CookieUtils;
 import com.pixivdownloader.core.utils.FilesUtils;
@@ -29,6 +30,8 @@ public class PixivDownloaderRunner implements CommandLineRunner {
     @Autowired
     private RankingService rankingService;
     @Autowired
+    private NovelService novelService;
+    @Autowired
     private CookieUtils cookieUtils;
 
     @Override
@@ -37,9 +40,11 @@ public class PixivDownloaderRunner implements CommandLineRunner {
         filesUtils.getDir();
         cookieUtils.getCookies();
 
+        LOGGER.warn("P站小说收藏夹与每日排行榜下载启动!!");
+        novelService.process();
+
         ThreadPoolExecutor executor = new ThreadPoolExecutor(6, 10, 200, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(10));
-
         LOGGER.warn("P站涩图收藏夹下载启动!!");
         List<Bookmark> bookmarkList = bookMarkDownloadService.getBookmarkList();
         bookMarkDownloadService.asyncDownloadBookmark(bookmarkList, executor);

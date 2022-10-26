@@ -1,6 +1,6 @@
-package com.pixivdownloader.core.entity;
+package com.pixivdownloader.core.entity.ranking;
 
-import lombok.Data;
+import com.pixivdownloader.core.entity.Bookmark;
 
 public class RankingPic extends Bookmark {
     private String illustId;

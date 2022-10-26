@@ -2,7 +2,7 @@ package com.pixivdownloader.core.utils;
 
 import com.pixivdownloader.core.constance.EntityPreset;
 import com.pixivdownloader.core.entity.Bookmark;
-import com.pixivdownloader.core.entity.RankingPic;
+import com.pixivdownloader.core.entity.ranking.RankingPic;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

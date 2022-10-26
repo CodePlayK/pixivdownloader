@@ -15,6 +15,9 @@ public class FilePathProperties {
     String R18GGIFPATH;
     String R18COMICPATH;
     String R18GCOMICPATH;
+    String R18GNOVELRANKING;
+    String R18NOVELRANKING;
+    String NOVELPATH;
     String NONEHCOMICPATH;
     String NONEHPATH;
     String RANKING;

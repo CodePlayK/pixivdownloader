@@ -1,6 +1,7 @@
 package com.pixivdownloader.core.constance;
 
 public interface EntityPreset {
+
     enum Rating {
         R18("R18"),
         R18G("R18G"),
@@ -42,6 +43,10 @@ public interface EntityPreset {
     }
 
     enum HttpEnum {
+        R18_NOVEL_RANKING_URL("https://www.pixiv.net/touch/ajax/ranking/novel?mode=weekly_r18&page=1&work_lang=zh-cn&lang=zh"),
+        R18G_NOVEL_RANKING_URL("https://www.pixiv.net/touch/ajax/ranking/novel?mode=r18g&page=1&work_lang=zh-cn&lang=zh"),
+        NOVEL_DETAIL_URL("https://www.pixiv.net/touch/ajax/novel/details?ref=&lang=zh&novel_id="),
+        NOVEL_FAVORITE_URL("https://www.pixiv.net/touch/ajax/user/bookmarks?type=novel&lang=zh&id="),
         GIFURL("https://i.pximg.net/img-zip-ugoira/img/"),
         PICURL("https://i.pximg.net/img-original/img/"),
         RANKINGURL("https://www.pixiv.net/touch/ajax/ranking/illust?type=all&lang=zh&mode="),

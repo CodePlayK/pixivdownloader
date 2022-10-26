@@ -1,4 +1,4 @@
-package com.pixivdownloader;
+package com.pixivdownloader.core.service;
 
 import com.alibaba.fastjson.JSON;
 import com.pixivdownloader.core.constance.EntityPreset;
@@ -7,18 +7,17 @@ import com.pixivdownloader.core.entity.novel.NovelRanking;
 import com.pixivdownloader.core.entity.novel.po.NovelPo;
 import com.pixivdownloader.core.mapper.novel.NovelMapper;
 import com.pixivdownloader.core.properties.FilePathProperties;
-import com.pixivdownloader.core.service.PicService;
+import com.pixivdownloader.core.utils.CookieUtils;
 import com.pixivdownloader.core.utils.RequestUtils;
 import com.vdurmont.emoji.EmojiManager;
 import com.vdurmont.emoji.EmojiParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,13 +27,20 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-@SpringBootTest
-class PixivdownloaderApplicationTests {
+/**
+ * @author Hakace
+ * @create 2022/10/25 18:53
+ */
+@Component
+public class NovelService {
+
     private final Logger LOGGER = LogManager.getLogger();
 
     @Autowired
-    private PicService picService;
+    private CookieUtils cookieUtils;
     @Autowired
     private RequestUtils requestUtils;
     @Autowired
@@ -42,31 +48,46 @@ class PixivdownloaderApplicationTests {
     @Autowired
     private NovelMapper novelMapper;
 
-    @Test
-    void contextLoads() throws IOException {
-    }
 
-    @Test
-    void test1() throws IOException {
-        Set<Integer> fileSet = new HashSet<>();
-        List<String> list = getFileNovelId();
-        list.forEach(a -> fileSet.add(Integer.valueOf(StringUtils.substringBefore(a, "_"))));
-        List<NovelPo> novelPos = novelMapper.queryAllNovelId();
-        Set<Integer> set = new HashSet<>();
+    public void process() throws IOException {
+        Set<Integer> fileRankingSet = getFileRankingNovelIdSet();
+        List<NovelPo> novelPos = novelMapper.queryAllRankingNovelId();
+        Set<Integer> rankingSet = new HashSet<>();
         if (!novelPos.isEmpty()) {
-            novelPos.forEach(a -> set.add(a.getNovelId()));
+            novelPos.forEach(a -> rankingSet.add(a.getNovelId()));
         }
-
         String url = EntityPreset.HttpEnum.R18_NOVEL_RANKING_URL.getUrl();
         String localPath = filePathProperties.getR18NOVELRANKING();
-        getNovel(url, localPath, set, fileSet, "R18");
+        getNovel(url, localPath, rankingSet, fileRankingSet, "\"ranking\":", ",\"ads\":", "RANKING");
         url = EntityPreset.HttpEnum.R18G_NOVEL_RANKING_URL.getUrl();
         localPath = filePathProperties.getR18GNOVELRANKING();
-        getNovel(url, localPath, set, fileSet, "R18G");
+        getNovel(url, localPath, rankingSet, fileRankingSet, "\"ranking\":", ",\"ads\":", "RANKING");
 
+
+        String favoriteUrl;
+        String favoriteLocalPath = filePathProperties.getNOVELPATH();
+        //本地已存在的小说
+        Set<Integer> fileFavoriteSet = getFileFavoriteNovelIdSet();
+        int page = getFavoritePage();
+        List<NovelPo> favoriteNovelPos = novelMapper.queryAllRankingNovelId();
+        //数据库中已存在的小说
+        Set<Integer> favoriteSet = new HashSet<>();
+        if (!favoriteNovelPos.isEmpty()) {
+            favoriteNovelPos.forEach(a -> favoriteSet.add(a.getNovelId()));
+        }
+        for (int i = 1; i <= page; i++) {
+            favoriteUrl = EntityPreset.HttpEnum.NOVEL_FAVORITE_URL.getUrl() + cookieUtils.getUSERID() + "&p=" + i;
+            getNovel(favoriteUrl, favoriteLocalPath, favoriteSet, fileFavoriteSet, "\"bookmarks\":", ",\"total\"", "FAVORITE");
+        }
     }
 
-    private List<String> getFileNovelId() {
+    private int getFavoritePage() {
+        ResponseEntity<String> responseEntity = requestUtils.requestPreset(EntityPreset.HttpEnum.NOVEL_FAVORITE_URL.getUrl() + cookieUtils.getUSERID(), HttpMethod.GET);
+        return Integer.parseInt(Objects.requireNonNull(StringUtils.substringBetween(responseEntity.getBody(), ",\"lastPage\":", ",\"ads\"")));
+    }
+
+    private Set<Integer> getFileRankingNovelIdSet() {
+        Set<Integer> fileSet = new HashSet<>();
         File file1 = new File(filePathProperties.getR18NOVELRANKING());
         File file2 = new File(filePathProperties.getR18GNOVELRANKING());
         String[] l1 = file1.list();
@@ -81,28 +102,56 @@ class PixivdownloaderApplicationTests {
         List<String> R18FielList = Arrays.asList(Objects.requireNonNull(l2));
         List<String> list = new ArrayList<>(R18GFielList);
         list.addAll(R18FielList);
-        return list;
+        if (!list.isEmpty()) {
+            list.forEach(a -> fileSet.add(Integer.valueOf(StringUtils.substringBefore(a, "_"))));
+        }
+        return fileSet;
     }
 
-    private void getNovel(String url, String localPath, Set<Integer> set, Set<Integer> fileSet, String novelType) throws IOException {
+    private Set<Integer> getFileFavoriteNovelIdSet() {
+        Set<Integer> set = new HashSet<>();
+        File file1 = new File(filePathProperties.getNOVELPATH());
+        String[] l1 = file1.list();
+        if (l1 == null) {
+            l1 = new String[]{"NA"};
+        }
+        List<String> list = Arrays.asList(Objects.requireNonNull(l1));
+        if (!list.isEmpty()) {
+            list.forEach(a -> set.add(Integer.parseInt(StringUtils.substringBetween(a, "_", "_"))));
+        }
+        return set;
+    }
+
+    private void getNovel(String url, String localPath, Set<Integer> set, Set<Integer> fileSet, String open, String close, String fileType) throws IOException {
         ResponseEntity<String> responseEntity = requestUtils.requestPreset(url, HttpMethod.GET);
-        String body0 = StringUtils.substringBetween(responseEntity.getBody(), "\"ranking\":", ",\"ads\":");
+        String body0 = StringUtils.substringBetween(responseEntity.getBody(), open, close);
         List<NovelRanking> novelRankings = JSON.parseArray(body0, NovelRanking.class);
+        if (novelRankings != null && novelRankings.get(0).getNovelId() == null) {
+            novelRankings.forEach(a -> a.setNovelId(a.getId()));
+        }
         StringBuilder stringBuilder = new StringBuilder();
         StringBuilder stringBuilder1 = new StringBuilder();
         for (NovelRanking novelRanking : Objects.requireNonNull(novelRankings)) {
             if (!set.contains(novelRanking.getNovelId())) {
-                writeSaveNovel(localPath, stringBuilder, stringBuilder1, novelRanking, fileSet, novelType);
+                writeSaveNovel(localPath, stringBuilder, stringBuilder1, novelRanking, fileSet, fileType, true);
             } else {
+                writeSaveNovel(localPath, stringBuilder, stringBuilder1, novelRanking, fileSet, fileType, false);
                 LOGGER.warn("[{}]已存在数据库中,跳过!", novelRanking.getNovelId());
             }
         }
     }
 
-    private void writeSaveNovel(String localPath, StringBuilder stringBuilder, StringBuilder stringBuilder1, NovelRanking novelRanking, Set<Integer> fileSet, String novelType) throws IOException {
-        ResponseEntity<String> responseEntity;
-        responseEntity = requestUtils.requestPreset(EntityPreset.HttpEnum.NOVEL_DETAIL_URL.getUrl() + novelRanking.getNovelId(), HttpMethod.GET);
-        String body = responseEntity.getBody();
+    private void writeSaveNovel(String localPath, StringBuilder stringBuilder, StringBuilder stringBuilder1, NovelRanking novelRanking, Set<Integer> fileSet, String fileType, boolean saveFlag) throws IOException {
+        String body = "";
+        try {
+            ResponseEntity<String> responseEntity = requestUtils.requestPreset(EntityPreset.HttpEnum.NOVEL_DETAIL_URL.getUrl() + novelRanking.getNovelId(), HttpMethod.GET);
+            body = responseEntity.getBody();
+        } catch (Exception e) {
+            LOGGER.error("该小说已被和谐=.=||[{}]", novelRanking.getNovelId());
+            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getStackTrace());
+            return;
+        }
         String body1 = "[" + StringUtils.substringBetween(body, "\"novel_details\":", "},\"author_details") + "}]";
         List<Novel> novels = JSON.parseArray(body1, Novel.class);
         Novel novel = novels.get(0);
@@ -110,12 +159,22 @@ class PixivdownloaderApplicationTests {
                 .append("\r\n\r\n").append(novel.getUserName()).append("\r\n\r\n").append(novel.getText()).toString());
         stringBuilder.setLength(0);
         NovelPo novelpo = new NovelPo(novel);
-        novelpo.setNovelType(novelType);
+        if (novelpo.getTags().contains("R-18G")) {
+            novelpo.setNovelType("R18G");
+        } else {
+            novelpo.setNovelType("R18");
+
+        }
+        novelpo.setFileType(fileType);
+        novelpo.setFavoriteId(novelRanking.getBookmarkId());
+        novelpo.setCreateTime(new Date());
         writeFile(localPath, stringBuilder, stringBuilder1, novel, novelpo, fileSet);
         try {
             encodeEmoji(novelpo);
-            novelMapper.insert(novelpo);
-            LOGGER.info("保存数据库成功[{}]", novelpo.getTitle());
+            if (saveFlag) {
+                novelMapper.insert(novelpo);
+                LOGGER.info("保存数据库成功[{}]", novelpo.getTitle());
+            }
         } catch (Exception e) {
             LOGGER.error("插入数据库失败![{}]", novelpo.getTitle());
             LOGGER.error(e.getMessage());
@@ -125,7 +184,7 @@ class PixivdownloaderApplicationTests {
 
 
     private void writeFile(String localPath, StringBuilder stringBuilder, StringBuilder stringBuilder1, Novel novel, NovelPo novelpo, Set<Integer> fileSet) throws IOException {
-        String fileName = getFileName(stringBuilder, stringBuilder1, novel, localPath);
+        String fileName = getFileName(stringBuilder, stringBuilder1, novel, localPath, novelpo);
         if (fileSet.contains(novelpo.getNovelId())) {
             LOGGER.warn("[{}]TXT已存在于本地文件,跳过!", fileName);
             return;
@@ -140,19 +199,28 @@ class PixivdownloaderApplicationTests {
 
     }
 
-    private String getFileName(StringBuilder stringBuilder, StringBuilder stringBuilder1, Novel novel1, String localPath) throws IOException {
+    private String getFileName(StringBuilder stringBuilder, StringBuilder stringBuilder1, Novel novel1, String localPath, NovelPo novelpo) throws IOException {
+        Pattern pattern = Pattern.compile("[\\s\\\\/:\\*\\?\\\"<>\\|]");
         String fileName;
+        String fileName1;
+        if (novelpo.getFavoriteId() != null && novelpo.getFavoriteId() != 0) {
+            stringBuilder.append(novelpo.getFavoriteId()).append("_");
+        }
+        fileName1 = String.valueOf(stringBuilder.append(novel1.getId()).append("_").append(novel1.getBookmarkCount()).append("_")
+                .append(novel1.getTitle()));
         for (int i = 0; i < novel1.getTags().size(); i++) {
-            if (i == novel1.getTags().size()) {
-                stringBuilder1.append(StringUtils.substringBefore(novel1.getTags().get(i), "/"));
-            } else {
-                stringBuilder1.append(StringUtils.substringBefore(novel1.getTags().get(i), "/")).append("_");
+            if (novel1.getTags().get(i).length() + fileName1.length() + localPath.length() + stringBuilder1.length() + 5 < 250) {
+                stringBuilder1.append("_").append(StringUtils.substringBefore(novel1.getTags().get(i), "/"));
             }
         }
-        fileName = localPath + stringBuilder.append(novel1.getId()).append("_").append(novel1.getBookmarkCount()).append("_")
-                .append(novel1.getTitle()).append("_").append(stringBuilder1).append(".txt");
+        stringBuilder1.append(".txt");
+        fileName1 = fileName1 + stringBuilder1;
+        Matcher matcher = pattern.matcher(fileName1);
+        fileName1 = matcher.replaceAll("");
+        fileName = localPath + fileName1;
         stringBuilder.setLength(0);
         stringBuilder1.setLength(0);
+
         return fileName;
     }
 
@@ -163,7 +231,7 @@ class PixivdownloaderApplicationTests {
                 String name = item.getName(); // 获取属性的名字
                 name = name.substring(0, 1).toUpperCase() + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
                 String type = item.getGenericType().toString(); // 获取属性的类型
-                if (type.equals("class java.lang.String")) { // 如果type是类类型，则前面包含"class "，后面跟类名
+                if ("class java.lang.String".equals(type)) { // 如果type是类类型，则前面包含"class "，后面跟类名
                     Method m = object.getClass().getMethod("get" + name);
                     String value = (String) m.invoke(object); // 调用getter方法获取属性值
                     //.....处理开始........

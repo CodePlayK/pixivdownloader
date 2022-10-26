@@ -56,6 +56,7 @@ public class BookMarkListService extends PicService {
             LOGGER.error("解析响应失败,请检查谷歌浏览器Pixiv登录是否过期!:{}", e.getMessage());
         }
         lastPage = requestUtils.getBetween(body, "\"lastPage\":", ",\"ads\"");
+        assert bookmarkList != null;
         bookmarkList.clear();
         Map<Integer, Integer> map = requestUtils.divideNumByPartNum(1, lastPage, THREADSIZE);
         ThreadPoolExecutor executor = new ThreadPoolExecutor(6, 10, 200, TimeUnit.MILLISECONDS,
@@ -93,7 +94,7 @@ public class BookMarkListService extends PicService {
         String pathName = filePathProperties.getR18PATH();
         List<Bookmark> list1 = new ArrayList<>();
         for (Bookmark bookmark : bookmarkList) {
-            if ("" == bookmark.getUrlS() || null == bookmark.getUrlS()) {
+            if ("".equals(bookmark.getUrlS()) || null == bookmark.getUrlS()) {
                 LOGGER.warn("图片地址为空!跳过!:{}", bookmark.getTitle());
                 continue;
             }
@@ -107,6 +108,7 @@ public class BookMarkListService extends PicService {
             File file = new File(pathName);
             String[] list = file.list();
             int c = 0;
+            assert list != null;
             for (String s : list) {
                 for (int i = 0; i < bookmark.getPageCount(); i++) {
                     if (s.contains(bookmark.getBookmarkId()) && s.contains("_p" + i)) {
@@ -118,14 +120,11 @@ public class BookMarkListService extends PicService {
             if (c < bookmark.getPageCount()) {
                 list1.add(bookmark);
                 LOGGER.info("图片加入下载队列!{}", bookmark.getTitle());
-            } else {
-                //LOGGER.info("图片已存在,跳过!{}", bookmark.getTitle());
             }
+
         }
         LOGGER.info("本次获取到的收藏共{}条,目标收藏条数:{}", bookmarkList.size(), list1.size());
         return list1;
-        //}
-        //return bookmarkList;
     }
 
     /**

@@ -2,8 +2,8 @@ package com.pixivdownloader.core.service;
 
 import com.alibaba.fastjson.JSON;
 import com.pixivdownloader.core.constance.EntityPreset;
-import com.pixivdownloader.core.entity.RankingDownloadTask;
-import com.pixivdownloader.core.entity.RankingPic;
+import com.pixivdownloader.core.entity.ranking.RankingDownloadTask;
+import com.pixivdownloader.core.entity.ranking.RankingPic;
 import com.pixivdownloader.core.properties.ExceptionProperties;
 import com.pixivdownloader.core.properties.FilePathProperties;
 import org.apache.logging.log4j.LogManager;
@@ -18,6 +18,7 @@ import org.springframework.web.client.RestClientException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -299,7 +300,7 @@ public class RankingService extends PicService {
         LocalDateTime dt = LocalDateTime.now();
         LOGGER.warn("P站涩图7日排行榜下载结束!!!" + dt.getYear() + "年" + dt.getMonth() + "月" + dt.getDayOfMonth() + " " + dt.getHour() + "点" + dt.getMinute()
                 + "分:本次下载完毕，收藏共:" + totalCount + "条，跳过:" + skipCount + "条，应下载:" +
-                (totalCount - skipCount) + "条，下载成功:" + successCount + "条，成功率:" + new BigDecimal(successCount * 100).divide(new BigDecimal(totalCount - skipCount + 1), 2, BigDecimal.ROUND_HALF_UP) + "%");
+                (totalCount - skipCount) + "条，下载成功:" + successCount + "条，成功率:" + new BigDecimal(successCount * 100).divide(new BigDecimal(totalCount - skipCount + 1), 2, RoundingMode.HALF_UP) + "%");
     }
 
 

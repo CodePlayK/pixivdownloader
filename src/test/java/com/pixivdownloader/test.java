@@ -1,7 +1,7 @@
 package com.pixivdownloader;
 
 import com.alibaba.fastjson.JSON;
-import com.pixivdownloader.core.entity.RankingPic;
+import com.pixivdownloader.core.entity.ranking.RankingPic;
 import com.pixivdownloader.core.utils.RequestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;

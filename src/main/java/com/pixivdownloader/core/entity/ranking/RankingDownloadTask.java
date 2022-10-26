@@ -1,4 +1,4 @@
-package com.pixivdownloader.core.entity;
+package com.pixivdownloader.core.entity.ranking;
 
 
 import com.pixivdownloader.core.service.RankingService;

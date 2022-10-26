@@ -2,7 +2,7 @@ package com.pixivdownloader.core.service;
 
 import com.pixivdownloader.core.constance.EntityPreset;
 import com.pixivdownloader.core.entity.Bookmark;
-import com.pixivdownloader.core.entity.RankingPic;
+import com.pixivdownloader.core.entity.ranking.RankingPic;
 import com.pixivdownloader.core.properties.FilePathProperties;
 import com.pixivdownloader.core.utils.FilesUtils;
 import com.pixivdownloader.core.utils.GifUtils;
@@ -264,7 +264,6 @@ public class PicService {
      */
     public int getRankingGif(RankingPic bookmark, String path) {
         boolean skipFlag = false;
-        String pathName = path;
         String url = EntityPreset.HttpEnum.GIFURL.getUrl() + bookmark.getUrlS() + EntityPreset.HttpEnum.URLZIP.getUrl();
         StringBuilder temptags = new StringBuilder();
         for (String tag : bookmark.getTags()) {
@@ -273,8 +272,8 @@ public class PicService {
         String fileName = bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
                 + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + GIF.getFileType();
         fileName = filesUtils.cutRankingFileName(fileName, bookmark, 0, GIF.getFileType());
-        File f = new File(pathName + fileName);
-        File f1 = new File(pathName);
+        File f = new File(path + fileName);
+        File f1 = new File(path);
         for (String s : Objects.requireNonNull(f1.list())) {
             if (s.contains(bookmark.getId())) {
                 skipFlag = true;
@@ -287,7 +286,7 @@ public class PicService {
         } else {
             if (!f.exists()) {
                 fileName = StringUtils.substringBefore(fileName, GIF.getFileType()) + ZIP.getFileType();
-                f = new File(pathName + fileName);
+                f = new File(path + fileName);
                 ResponseEntity<byte[]> bytes = requestUtils.requestStreamPreset(url, HttpMethod.GET);
                 if (!f.exists()) {
                     try {
@@ -303,21 +302,21 @@ public class PicService {
                     e.printStackTrace();
                 }
                 try {
-                    unZipUtils.zipUncompress(pathName + fileName);
+                    unZipUtils.zipUncompress(path + fileName);
                 } catch (Exception e) {
-                    LOGGER.error("{}解压失败!", pathName + fileName);
+                    LOGGER.error("{}解压失败!", path + fileName);
                     LOGGER.error(e.getMessage());
                 }
                 String fileName1 = StringUtils.substringBefore(fileName, ZIP.getFileType());
-                String[] fileList = filesUtils.findFileList(new File(pathName + "\\" + fileName1 + "\\"));
+                String[] fileList = filesUtils.findFileList(new File(path + "\\" + fileName1 + "\\"));
                 if (null == fileList || fileList.length == 0) {
-                    LOGGER.error(pathName + "\\" + fileName1 + "\\");
+                    LOGGER.error(path + "\\" + fileName1 + "\\");
                 }
-                gifUtils.jpgToGif(fileList, pathName + fileName1 + GIF.getFileType());
-                filesUtils.deleteFolder(pathName + "\\" + fileName1 + "\\");
-                filesUtils.deleteFolder(pathName + "\\" + fileName);
+                gifUtils.jpgToGif(fileList, path + fileName1 + GIF.getFileType());
+                filesUtils.deleteFolder(path + "\\" + fileName1 + "\\");
+                filesUtils.deleteFolder(path + "\\" + fileName);
             } else {
-                LOGGER.info("已存在:{},跳过……", pathName);
+                LOGGER.info("已存在:{},跳过……", path);
                 return 1;
             }
             LOGGER.info("GIF下载成功!:{}", fileName);
