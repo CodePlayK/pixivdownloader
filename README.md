@@ -1,5 +1,5 @@
 # Pixiv Downloader
-下载p站个人收藏夹与7日内的排行榜,包括gif，需要谷歌浏览器与自备vpn; 
+下载p站个人收藏夹与7日内的排行榜,包括gif，小说收藏，小说排行榜，需要谷歌浏览器与自备vpn; 
 
 个人为防止猎巫活动对蓝p站的本地备份(
 ## 功能
@@ -19,7 +19,7 @@
 - 登录vpn
 
 - 运行jar包
-## 相关项目
+## 相关
 
 [CookieMonster获取浏览器cookies与解析](https://github.com/benjholla/CookieMonster.git)
 
