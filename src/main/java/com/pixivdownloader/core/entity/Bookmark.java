@@ -121,7 +121,7 @@ public class Bookmark {
     }
 
     public void setTags(List<String> tags) {
-        Pattern pattern = Pattern.compile("[\\s\\\\/:\\*\\?\\\"<>\\|]");
+        final Pattern pattern = Pattern.compile("[\\s\\\\/:*?\"<>|]");
         List<String> tags1 = new ArrayList<>();
         if (tags.isEmpty()) {
             tags1.add("未知标签");
@@ -140,7 +140,7 @@ public class Bookmark {
     }
 
     public void setTitle(String title) {
-        Pattern pattern = Pattern.compile("[\\s\\\\/:\\*\\?\\\"<>\\|]");
+        final Pattern pattern = Pattern.compile("[\\s\\\\/:*?\"<>|]");
         Matcher matcher = pattern.matcher(title);
         title = matcher.replaceAll(""); // 将匹配到的非法字符以空替换
         if (title.isEmpty()) {

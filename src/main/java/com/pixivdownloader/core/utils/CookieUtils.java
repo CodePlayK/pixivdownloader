@@ -1,11 +1,11 @@
 package com.pixivdownloader.core.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pixivdownloader.core.constance.EntityPreset;
 import com.pixivdownloader.core.entity.Cookie;
 import com.pixivdownloader.core.entity.DecryptedCookie;
 import com.pixivdownloader.core.entity.EncryptedCookie;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jna.platform.win32.Crypt32Util;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +24,13 @@ import java.sql.*;
 import java.util.Date;
 import java.util.*;
 
+
+/**
+ * Cookie工具箱
+ *
+ * @author hakace
+ * @date 2022/10/27
+ */
 @Component
 @Data
 public class CookieUtils {
@@ -46,8 +53,6 @@ public class CookieUtils {
 
     /**
      * 获取系统代理
-     *
-     * @return
      */
     private void getSysProxy() {
         inetSocketAddress = new InetSocketAddress(0);
@@ -104,6 +109,13 @@ public class CookieUtils {
         }
     }
 
+    /**
+     * 过程饼干
+     *
+     * @param cookieStore  Cookie商店
+     * @param domainFilter 域滤波器
+     * @return {@link Set}<{@link Cookie}>
+     */
     public Set<Cookie> processCookies(File cookieStore, String domainFilter) {
         getWindowsKey();
         HashSet<Cookie> cookies = new HashSet<>();
@@ -145,6 +157,15 @@ public class CookieUtils {
         return cookies;
     }
 
+    /**
+     * 从结果解析Cookie
+     *
+     * @param cookieStore Cookie商店
+     * @param name        名字
+     * @param cookies     饼干
+     * @param result      结果
+     * @throws SQLException sqlexception异常
+     */
     private void parseCookieFromResult(File cookieStore, String name, HashSet<Cookie> cookies, ResultSet result) throws SQLException {
         byte[] encryptedBytes = result.getBytes("encrypted_value");
         String path = result.getString("path");

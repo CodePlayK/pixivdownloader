@@ -21,10 +21,15 @@ import java.util.*;
 import java.util.concurrent.*;
 
 
+/**
+ * 书签列表服务
+ *
+ * @author hakace
+ * @date 2022/10/27
+ */
 @Component
 public class BookMarkListService extends PicService {
     private final Logger LOGGER = LogManager.getLogger();
-    private final int THREADSIZE = 4;
     @Autowired
     private RequestUtils requestUtils;
     @Autowired
@@ -39,11 +44,11 @@ public class BookMarkListService extends PicService {
      * @return 收藏list
      */
     public List<Bookmark> getBookmarkList() throws InterruptedException {
-        String BOOKMARKLISTURL = "https://www.pixiv.net/touch/ajax/user/bookmarks?id=" + cookieUtils.getUSERID() + "&type=illust&lang=zh&offset=0&limit=48&p=";
+        final String BOOKMARK_LIST_URL = "https://www.pixiv.net/touch/ajax/user/bookmarks?id=" + cookieUtils.getUSERID() + "&type=illust&lang=zh&offset=0&limit=48&p=";
         int lastPage = 1;
         String body = "";
         try {
-            ResponseEntity<String> responseEntity = requestUtils.requestPreset(BOOKMARKLISTURL + "1", HttpMethod.GET);
+            ResponseEntity<String> responseEntity = requestUtils.requestPreset(BOOKMARK_LIST_URL + "1", HttpMethod.GET);
             body = responseEntity.getBody();
         } catch (RestClientException e) {
             LOGGER.error("[{}]解析响应失败,请检查谷歌浏览器Pixiv登录是否过期!:{}", StringUtils.substringBefore(e.getMessage(), ": [{"), e.getMessage());
@@ -58,7 +63,8 @@ public class BookMarkListService extends PicService {
         lastPage = requestUtils.getBetween(body, "\"lastPage\":", ",\"ads\"");
         assert bookmarkList != null;
         bookmarkList.clear();
-        Map<Integer, Integer> map = requestUtils.divideNumByPartNum(1, lastPage, THREADSIZE);
+        int THREAD_SIZE = 4;
+        Map<Integer, Integer> map = requestUtils.divideNumByPartNum(1, lastPage, THREAD_SIZE);
         ThreadPoolExecutor executor = new ThreadPoolExecutor(6, 10, 200, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(5));
         List<Future> futures = new ArrayList<>();
@@ -67,12 +73,10 @@ public class BookMarkListService extends PicService {
             BookMarkListTask getBookMarkListTask = applicationContext.getBean(BookMarkListTask.class);
             getBookMarkListTask.setBg(entry.getKey());
             getBookMarkListTask.setEnd(entry.getValue());
-            getBookMarkListTask.setUrl(BOOKMARKLISTURL);
+            getBookMarkListTask.setUrl(BOOKMARK_LIST_URL);
             futures.add(executor.submit(getBookMarkListTask));
         }
-
         executor.shutdown();
-        int i1 = 0;
         //while (!executor.isTerminated()) {
         try {
             executor.awaitTermination(1, TimeUnit.SECONDS);
@@ -80,8 +84,6 @@ public class BookMarkListService extends PicService {
             LOGGER.error("线程获取收藏报错!:{}", e.getMessage());
             e.printStackTrace();
         }
-        i1++;
-
         for (Future future : futures) {
             try {
                 bookmarkList.addAll((Collection<? extends Bookmark>) future.get());
@@ -91,7 +93,7 @@ public class BookMarkListService extends PicService {
             }
         }
         executor.shutdown();
-        String pathName = filePathProperties.getR18PATH();
+        String pathName;
         List<Bookmark> list1 = new ArrayList<>();
         for (Bookmark bookmark : bookmarkList) {
             if ("".equals(bookmark.getUrlS()) || null == bookmark.getUrlS()) {

@@ -30,7 +30,7 @@ public class AuthorDetails {
     }
 
     public void setUserName(String userName) {
-        Pattern pattern = Pattern.compile("[\\s\\\\/:\\*\\?\\\"<>\\|]");
+        final Pattern pattern = Pattern.compile("[\\s\\\\/:*?\"<>|]");
         Matcher matcher = pattern.matcher(userName);
         userName = matcher.replaceAll(""); // 将匹配到的非法字符以空替换
         this.userName = userName;

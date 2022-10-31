@@ -17,6 +17,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
+/**
+ * 书签列表任务
+ *
+ * @author hakace
+ * @date 2022/10/28
+ */
 @Component
 @Scope("prototype")
 @Data
@@ -30,7 +36,7 @@ public class BookMarkListTask implements Callable {
     private RequestUtils requestUtils;
 
     @Override
-    public List<Bookmark> call() throws Exception {
+    public List<Bookmark> call() {
         String BOOKMARKLISTURL = url;
         List<Bookmark> bookmarkList = new ArrayList<>();
         LOGGER.info("开始获取第{}到{}页收藏……", bg, end);

@@ -44,11 +44,7 @@ public class PicService {
     private UnZipUtils unZipUtils;
     protected static final int COMIC_SIZE = 35;
 
-    /**
-     * 收藏获取图片
-     *
-     * @param bookmarkList 收藏列表
-     */
+
     public void getPicByPage(List<Bookmark> bookmarkList) {
         LOGGER.warn("当前线程首个收藏：{}", bookmarkList.get(0).getTitle());
         boolean skipFlag = false;

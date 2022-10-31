@@ -3,6 +3,12 @@ package com.pixivdownloader.core.entity;
 import java.io.File;
 import java.util.Date;
 
+/**
+ * Cookie
+ *
+ * @author hakace
+ * @date 2022/10/27
+ */
 public class Cookie {
 
     protected String name;
