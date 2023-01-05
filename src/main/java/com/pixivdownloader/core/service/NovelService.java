@@ -163,7 +163,7 @@ public class NovelService {
         ResponseEntity<String> responseEntity = requestUtils.requestPreset(url, HttpMethod.GET);
         String body0 = StringUtils.substringBetween(responseEntity.getBody(), open, close);
         List<NovelRanking> novelRankings = JSON.parseArray(body0, NovelRanking.class);
-        if (novelRankings != null && novelRankings.get(0).getNovelId() == null) {
+        if (novelRankings != null && novelRankings.size() > 0 && novelRankings.get(0).getNovelId() == null) {
             novelRankings.forEach(a -> a.setNovelId(a.getId()));
         }
         StringBuilder stringBuilder = new StringBuilder();

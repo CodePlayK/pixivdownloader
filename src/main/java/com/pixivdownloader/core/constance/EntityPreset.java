@@ -115,7 +115,7 @@ public interface EntityPreset {
     }
 
     enum BrowserPath {
-        CHROME("C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Network\\Cookies");
+        CHROME("C:\\Users\\" + System.getProperties().getProperty("user.name") + "\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Network\\Cookies");
         String path;
 
         BrowserPath(String path) {
