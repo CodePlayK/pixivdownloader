@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Mason Bootstrap 4.0 Theme</title>
+
+    <!-- load stylesheets -->
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
+    <!-- Google web font "Open Sans", https://fonts.google.com/ -->
+    <link href="font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Font Awesome, http://fontawesome.io/ -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap styles, https://getbootstrap.com/ -->
+    <link href="css/tooplate-style.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<div class="container-fluid">
+    <div class="tm-body">
+        <div class="tm-sidebar sticky">
+            <section class="tm-content-box tm-banner margin-b-15" id="welcome">
+                <div class="tm-banner-inner">
+                    <i class="fa fa-film fa-4x margin-b-40"></i>
+                    <h1 class="tm-banner-title">Mason</h1>
+                    <p class="tm-banner-subtitle">new HTML template</p>
+                </div>
+            </section>
+            <nav class="tm-main-nav">
+                <ul class="tm-main-nav-ul">
+                    <li class="tm-nav-item"><a class="tm-nav-item-link tm-button active" href="index.html">Gallery</a>
+                    </li>
+                    <li class="tm-nav-item"><a class="tm-nav-item-link tm-button" href="timeline.html">Timeline</a>
+                    </li>
+                    <li class="tm-nav-item"><a class="tm-nav-item-link tm-button" href="about.html">About</a>
+                    </li>
+                    <li class="tm-nav-item"><a class="tm-nav-item-link tm-button" href="contact.html">Contact</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="tlinks">Collect from <a href="http://www.cssmoban.com/">网页模板</a></div>
+        <div class="tm-main-content tm-gallery-container">
+            <div class="grid">
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-23-01.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-11-01.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-12-01.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-11-02.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-12-02.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-23-02.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-11-03.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-23-03.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-11-04.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-11-05.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-12-03.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-12-04.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-11-06.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-23-04.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-11-07.jpg"></div>
+                <div class="grid-item"><img alt="Image" src="img/gallery-img-23-05.jpg"></div>
+            </div>
+        </div> <!-- tm-main-content -->
+    </div>
+
+    <footer class="tm-footer text-right">
+        <p>Copyright &copy; <span class="tm-current-year">2018</span> Your Company
+
+            - Designed by <a href="#/tooplate" target="_parent">Tooplate</a>. More Templates <a
+                    href="http://www.cssmoban.com/" target="_blank" title="模板之家">模板之家</a> - Collect from <a
+                    href="http://www.cssmoban.com/" target="_blank" title="网页模板">网页模板</a></p>
+    </footer>
+
+</div> <!-- container-fluid -->
+
+<!-- load JS files -->
+
+<script src="js/jquery-1.11.3.min.js"></script>             <!-- jQuery (https://jquery.com/download/) -->
+<script src="js/imagesloaded.pkgd.min.js"></script> <!-- https://masonry.desandro.com/ -->
+<script src="js/masonry.pkgd.min.js"></script> <!-- https://masonry.desandro.com/ -->
+
+<!-- Templatemo scripts -->
+<script>
+
+    $(document).ready(function () {
+
+        // init Masonry
+        // https://codepen.io/craigwheeler/pen/MYjBga
+        var $grid = $('.grid').masonry({
+
+            // set itemSelector so .grid-sizer is not used in layout
+            // itemSelector: '.grid-item',
+            // use element for option
+            // columnWidth: '.grid-sizer',
+            // percentPosition: true
+
+            itemSelector: '.grid-item',
+            isFitWidth: true,
+            columnWidth: 1
+        });
+        // layout Masonry after each image loads
+        $grid.imagesLoaded().progress(function () {
+            $grid.masonry('layout');
+        });
+
+        // Update the current year in copyright
+        $('.tm-current-year').text(new Date().getFullYear());
+    });
+
+</script>
+<style>
+    .copyrights {
+        text-indent: -9999px;
+        height: 0;
+        line-height: 0;
+        font-size: 0;
+        overflow: hidden;
+    }
+</style>
+<div class="copyrights" id="links20210126">
+    Collect from <a href="http://www.cssmoban.com/" title="网站模板">模板之家</a>
+    <a href="https://www.chazidian.com/" title="查字典">查字典</a>
+</div>
+</body>
+</html>
