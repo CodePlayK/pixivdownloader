@@ -22,7 +22,7 @@ public class NovelPo {
     @KeySql(useGeneratedKeys = true)
     private Integer seq;
     private Integer novelId;
-    private Integer favoriteId;
+    private Long favoriteId;
     private String title;
     @Lob
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -41,7 +41,7 @@ public class NovelPo {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String text;
 
-    public NovelPo(Integer seq, Integer novelId, Integer favoriteId, String title, String comment, String userId, String novelType, String fileType, Integer wordCount, String userName, Date createTime, String url, Integer bookmarkCount, String tags, String series, String text) {
+    public NovelPo(Integer seq, Integer novelId, Long favoriteId, String title, String comment, String userId, String novelType, String fileType, Integer wordCount, String userName, Date createTime, String url, Integer bookmarkCount, String tags, String series, String text) {
         this.seq = seq;
         this.novelId = novelId;
         this.favoriteId = favoriteId;

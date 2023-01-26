@@ -65,16 +65,16 @@ public class NovelService {
         if (!novelPos.isEmpty()) {
             novelPos.forEach(a -> rankingSet.add(a.getNovelId()));
         }
-        String url = EntityPreset.HttpEnum.R18_NOVEL_RANKING_URL.getUrl();
-        String localPath = filePathProperties.getR18NOVELRANKING();
+        String url = EntityPreset.HttpEnum.R18_NOVEL_RANKING_URL.URL;
+        String localPath = filePathProperties.getR18_NOVEL_RANKING();
         getNovel(url, localPath, rankingSet, fileRankingSet, "\"ranking\":", ",\"ads\":", "RANKING");
-        url = EntityPreset.HttpEnum.R18G_NOVEL_RANKING_URL.getUrl();
-        localPath = filePathProperties.getR18GNOVELRANKING();
+        url = EntityPreset.HttpEnum.R18G_NOVEL_RANKING_URL.URL;
+        localPath = filePathProperties.getR18G_NOVEL_RANKING();
         getNovel(url, localPath, rankingSet, fileRankingSet, "\"ranking\":", ",\"ads\":", "RANKING");
 
 
         String favoriteUrl;
-        String favoriteLocalPath = filePathProperties.getNOVELPATH();
+        String favoriteLocalPath = filePathProperties.getNOVEL_PATH();
         //本地已存在的小说
         Set<Integer> fileFavoriteSet = getFileFavoriteNovelIdSet();
         int page = getFavoritePage();
@@ -85,7 +85,7 @@ public class NovelService {
             favoriteNovelPos.forEach(a -> favoriteSet.add(a.getNovelId()));
         }
         for (int i = 1; i <= page; i++) {
-            favoriteUrl = EntityPreset.HttpEnum.NOVEL_FAVORITE_URL.getUrl() + cookieUtils.getUSERID() + "&p=" + i;
+            favoriteUrl = EntityPreset.HttpEnum.NOVEL_FAVORITE_URL.URL + cookieUtils.getUSERID() + "&p=" + i;
             getNovel(favoriteUrl, favoriteLocalPath, favoriteSet, fileFavoriteSet, "\"bookmarks\":", ",\"total\"", "FAVORITE");
         }
     }
@@ -96,7 +96,7 @@ public class NovelService {
      * @return int
      */
     private int getFavoritePage() {
-        ResponseEntity<String> responseEntity = requestUtils.requestPreset(EntityPreset.HttpEnum.NOVEL_FAVORITE_URL.getUrl() + cookieUtils.getUSERID(), HttpMethod.GET);
+        ResponseEntity<String> responseEntity = requestUtils.requestPreset(EntityPreset.HttpEnum.NOVEL_FAVORITE_URL.URL + cookieUtils.getUSERID(), HttpMethod.GET);
         return Integer.parseInt(Objects.requireNonNull(StringUtils.substringBetween(responseEntity.getBody(), ",\"lastPage\":", ",\"ads\"")));
     }
 
@@ -108,8 +108,8 @@ public class NovelService {
      */
     private Set<Integer> getFileRankingNovelIdSet() {
         Set<Integer> fileSet = new HashSet<>();
-        File file1 = new File(filePathProperties.getR18NOVELRANKING());
-        File file2 = new File(filePathProperties.getR18GNOVELRANKING());
+        File file1 = new File(filePathProperties.getR18_NOVEL_RANKING());
+        File file2 = new File(filePathProperties.getR18G_NOVEL_RANKING());
         String[] l1 = file1.list();
         String[] l2 = file2.list();
         if (l1 == null) {
@@ -135,7 +135,7 @@ public class NovelService {
      */
     private Set<Integer> getFileFavoriteNovelIdSet() {
         Set<Integer> set = new HashSet<>();
-        File file1 = new File(filePathProperties.getNOVELPATH());
+        File file1 = new File(filePathProperties.getNOVEL_PATH());
         String[] l1 = file1.list();
         if (l1 == null) {
             l1 = new String[]{"NA"};
@@ -162,7 +162,13 @@ public class NovelService {
     private void getNovel(String url, String localPath, Set<Integer> set, Set<Integer> fileSet, String open, String close, String fileType) throws IOException {
         ResponseEntity<String> responseEntity = requestUtils.requestPreset(url, HttpMethod.GET);
         String body0 = StringUtils.substringBetween(responseEntity.getBody(), open, close);
-        List<NovelRanking> novelRankings = JSON.parseArray(body0, NovelRanking.class);
+        List<NovelRanking> novelRankings = null;
+        try {
+            novelRankings = JSON.parseArray(body0, NovelRanking.class);
+        } catch (Exception e) {
+            LOGGER.warn(body0);
+            throw new RuntimeException(e);
+        }
         if (novelRankings != null && novelRankings.size() > 0 && novelRankings.get(0).getNovelId() == null) {
             novelRankings.forEach(a -> a.setNovelId(a.getId()));
         }
@@ -197,7 +203,7 @@ public class NovelService {
         }
         String body = "";
         try {
-            ResponseEntity<String> responseEntity = requestUtils.requestPreset(EntityPreset.HttpEnum.NOVEL_DETAIL_URL.getUrl() + novelRanking.getNovelId(), HttpMethod.GET);
+            ResponseEntity<String> responseEntity = requestUtils.requestPreset(EntityPreset.HttpEnum.NOVEL_DETAIL_URL.URL + novelRanking.getNovelId(), HttpMethod.GET);
             body = responseEntity.getBody();
         } catch (Exception e) {
             LOGGER.error("该小说已被和谐=.=||[{}]", novelRanking.getNovelId());

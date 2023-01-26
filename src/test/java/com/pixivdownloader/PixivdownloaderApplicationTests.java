@@ -57,18 +57,18 @@ class PixivdownloaderApplicationTests {
             novelPos.forEach(a -> set.add(a.getNovelId()));
         }
 
-        String url = EntityPreset.HttpEnum.R18_NOVEL_RANKING_URL.getUrl();
-        String localPath = filePathProperties.getR18NOVELRANKING();
+        String url = EntityPreset.HttpEnum.R18_NOVEL_RANKING_URL.URL;
+        String localPath = filePathProperties.getR18_NOVEL_RANKING();
         getNovel(url, localPath, set, fileSet, "R18");
-        url = EntityPreset.HttpEnum.R18G_NOVEL_RANKING_URL.getUrl();
-        localPath = filePathProperties.getR18GNOVELRANKING();
+        url = EntityPreset.HttpEnum.R18G_NOVEL_RANKING_URL.URL;
+        localPath = filePathProperties.getR18G_NOVEL_RANKING();
         getNovel(url, localPath, set, fileSet, "R18G");
 
     }
 
     private List<String> getFileNovelId() {
-        File file1 = new File(filePathProperties.getR18NOVELRANKING());
-        File file2 = new File(filePathProperties.getR18GNOVELRANKING());
+        File file1 = new File(filePathProperties.getR18_NOVEL_RANKING());
+        File file2 = new File(filePathProperties.getR18G_NOVEL_RANKING());
         String[] l1 = file1.list();
         String[] l2 = file2.list();
         if (l1 == null) {
@@ -101,7 +101,7 @@ class PixivdownloaderApplicationTests {
 
     private void writeSaveNovel(String localPath, StringBuilder stringBuilder, StringBuilder stringBuilder1, NovelRanking novelRanking, Set<Integer> fileSet, String novelType) throws IOException {
         ResponseEntity<String> responseEntity;
-        responseEntity = requestUtils.requestPreset(EntityPreset.HttpEnum.NOVEL_DETAIL_URL.getUrl() + novelRanking.getNovelId(), HttpMethod.GET);
+        responseEntity = requestUtils.requestPreset(EntityPreset.HttpEnum.NOVEL_DETAIL_URL.URL + novelRanking.getNovelId(), HttpMethod.GET);
         String body = responseEntity.getBody();
         String body1 = "[" + StringUtils.substringBetween(body, "\"novel_details\":", "},\"author_details") + "}]";
         List<Novel> novels = JSON.parseArray(body1, Novel.class);

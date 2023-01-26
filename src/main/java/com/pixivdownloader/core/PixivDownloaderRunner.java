@@ -51,8 +51,8 @@ public class PixivDownloaderRunner implements CommandLineRunner {
 
         LOGGER.info("排行榜下载更新开始！");
         ArrayList<RankingPic> rankingList = new ArrayList<>();
-        for (EntityPreset.RankingType value : EntityPreset.RankingType.values()) {
-            rankingList.addAll(rankingService.getRankingListByTypeDay(value.getRankingTyoe()));
+        for (EntityPreset.RATING_TYPE value : EntityPreset.RATING_TYPE.values()) {
+            rankingList.addAll(rankingService.getRankingListByTypeDay(value.RANKING_TYPE));
         }
         List<RankingPic> picList = rankingService.getPicsInfoByIds(rankingList);
         rankingService.asyncDownloadRanking(picList, executor);

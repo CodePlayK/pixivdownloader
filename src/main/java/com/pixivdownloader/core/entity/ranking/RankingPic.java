@@ -5,18 +5,18 @@ import com.pixivdownloader.core.entity.Bookmark;
 public class RankingPic extends Bookmark {
     private String illustId;
     private String rank;
-    private String rankingType;
+    private String RANKING_TYPE;
     private String date;
 
     public RankingPic() {
     }
 
-    public String getRankingType() {
-        return rankingType;
+    public String getRATING_TYPE() {
+        return RANKING_TYPE;
     }
 
-    public void setRankingType(String rankingType) {
-        this.rankingType = rankingType;
+    public void setRATING_TYPE(String RANKING_TYPE) {
+        this.RANKING_TYPE = RANKING_TYPE;
     }
 
     public String getDate() {

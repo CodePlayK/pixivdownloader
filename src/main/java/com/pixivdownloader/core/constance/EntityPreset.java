@@ -2,47 +2,43 @@ package com.pixivdownloader.core.constance;
 
 public interface EntityPreset {
 
-    enum Rating {
-        R18("R18"),
-        R18G("R18G"),
-        R18GIF("R18GIF"),
-        R18GGIF("R18GGIF"),
-        RANKING("RANKING"),
-        NONEH("NONEH");
-        String rate;
+    enum RATING implements EntityPreset {
+        R18("R18", "R18图片保存路径"),
+        R18_COMIC("R18_COMIC", "R18-COMIC图片保存路径"),
+        R18G_COMIC("R18G_COMIC", "R18G-COMIC图片保存路径"),
+        R18G("R18G", "R18G图片保存路径"),
+        R18_GIF("R18_GIF", "R18-GIF图片保存路径"),
+        R18G_GIF("R18G_GIF", "R18G-GIF图片保存路径"),
+        RANKING("RANKING", "排行榜图片路径"),
+        R18_NOVEL_RANKING("R18_NOVEL_RANKING", "R18小说排行榜保存路径"),
+        R18G_NOVEL_RANKING("R18G_NOVEL_RANKING", "R18G小说排行榜保存路径"),
+        NOVEL_PATH("NOVEL_PATH", "小说收藏保存路径"),
+        NONEH("NONEH", "非涩图保存路径"),
+        NONEH_COMIC("NONEH_COMIC", "NONEH-COMIC图片保存路径");
+        public String NAME;
+        public String PATH_NAME;
 
-        Rating(String rate) {
-            this.rate = rate;
-        }
-
-        public String getRate() {
-            return rate;
-        }
-
-        public void setRate(String rate) {
-            this.rate = rate;
+        RATING(String NAME, String PATH_NAME) {
+            this.NAME = NAME;
+            this.PATH_NAME = PATH_NAME;
         }
     }
 
-    enum RankingType {
+    enum RATING_TYPE {
         DAILY_R18("daily_r18"),
         R18G("r18g");
-        String rankingTyoe;
+        public String RANKING_TYPE;
 
-        RankingType(String daily_r18) {
-            this.rankingTyoe = daily_r18;
+        RATING_TYPE(String daily_r18) {
+            this.RANKING_TYPE = daily_r18;
         }
 
-        public String getRankingTyoe() {
-            return rankingTyoe;
-        }
-
-        public void setRankingTyoe(String rankingTyoe) {
-            this.rankingTyoe = rankingTyoe;
-        }
     }
 
     enum HttpEnum {
+        BOOKMARK_LIST_URL_BEGIN("https://www.pixiv.net/touch/ajax/user/bookmarks?id="),
+        BOOKMARK_LIST_URL_END("&type=illust&lang=zh&offset=0&limit=48&p="),
+
         R18_NOVEL_RANKING_URL("https://www.pixiv.net/touch/ajax/ranking/novel?mode=weekly_r18&page=1&work_lang=zh-cn&lang=zh"),
         R18G_NOVEL_RANKING_URL("https://www.pixiv.net/touch/ajax/ranking/novel?mode=r18g&page=1&work_lang=zh-cn&lang=zh"),
         NOVEL_DETAIL_URL("https://www.pixiv.net/touch/ajax/novel/details?ref=&lang=zh&novel_id="),
@@ -58,77 +54,58 @@ public interface EntityPreset {
         USERAGENT("Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Mobile Safari/537.36 Edg/96.0.1054.41"),
         ;
 
-        String url;
+        public String URL;
 
         HttpEnum(String url) {
-            this.url = url;
+            this.URL = url;
         }
 
         public String getUrl() {
-            return url;
+            return URL;
         }
 
         public void setUrl(String url) {
-            this.url = url;
+            this.URL = url;
         }
     }
 
-    enum FileType {
-        ZIP(".zip"),
-        GIF(".gif"),
+    enum FILE_TYPE {
         JPG(".jpg"),
         PNG(".png"),
+        GIF(".gif"),
+        ZIP(".zip"),
         ;
-        String fileType;
+        public String FILE_TYPE;
 
-        FileType(String fileType) {
-            this.fileType = fileType;
+        FILE_TYPE(String fileType) {
+            this.FILE_TYPE = fileType;
         }
 
-        public String getFileType() {
-            return fileType;
-        }
 
-        public void setFileType(String fileType) {
-            this.fileType = fileType;
-        }
     }
 
-    enum Urls {
+    enum URLS {
         OPEN("/img/"),
         CLOSE1("_p0_"),
         CLOSE2("_square"),
         ;
-        String mark;
+        public String MARK;
 
-        Urls(String mark) {
-            this.mark = mark;
+        URLS(String mark) {
+            this.MARK = mark;
         }
 
-        public String getMark() {
-            return mark;
-        }
-
-        public void setMark(String mark) {
-            this.mark = mark;
-        }
     }
 
-    enum BrowserPath {
+    enum BROWSER_PATH {
         CHROME("C:\\Users\\" + System.getProperties().getProperty("user.name") + "\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Network\\Cookies");
-        String path;
+        public String PATH;
 
-        BrowserPath(String path) {
-            this.path = path;
+        BROWSER_PATH(String path) {
+            this.PATH = path;
         }
 
-        public String getPath() {
-            return path;
-        }
 
-        public void setPath(String path) {
-            this.path = path;
-        }
     }
 
 

@@ -34,12 +34,12 @@ public class Bookmark {
 
     public void setUrlSm(String urlSm) {
         if (null != urlSm && !urlSm.isEmpty()) {
-            String url = StringUtils.substringBetween(urlSm, EntityPreset.Urls.OPEN.getMark(), EntityPreset.Urls.CLOSE1.getMark());
+            String url = StringUtils.substringBetween(urlSm, EntityPreset.URLS.OPEN.MARK, EntityPreset.URLS.CLOSE1.MARK);
             if (null == url || url.isEmpty()) {
-                url = StringUtils.substringBetween(urlSm, EntityPreset.Urls.OPEN.getMark(), EntityPreset.Urls.CLOSE2.getMark());
+                url = StringUtils.substringBetween(urlSm, EntityPreset.URLS.OPEN.MARK, EntityPreset.URLS.CLOSE2.MARK);
             }
             this.urlS = url;
-            this.filType = EntityPreset.FileType.JPG.getFileType();
+            this.filType = EntityPreset.FILE_TYPE.JPG.FILE_TYPE;
         }
     }
 
@@ -49,12 +49,12 @@ public class Bookmark {
 
     public void setUrlSs(String urlSs) {
         if (null != urlSs && !urlSs.isEmpty()) {
-            String url = StringUtils.substringBetween(urlSs, EntityPreset.Urls.OPEN.getMark(), EntityPreset.Urls.CLOSE1.getMark());
+            String url = StringUtils.substringBetween(urlSs, EntityPreset.URLS.OPEN.MARK, EntityPreset.URLS.CLOSE1.MARK);
             if (null == url || url.isEmpty()) {
-                url = StringUtils.substringBetween(urlSs, EntityPreset.Urls.OPEN.getMark(), EntityPreset.Urls.CLOSE2.getMark());
+                url = StringUtils.substringBetween(urlSs, EntityPreset.URLS.OPEN.MARK, EntityPreset.URLS.CLOSE2.MARK);
             }
             this.urlS = url;
-            this.filType = EntityPreset.FileType.JPG.getFileType();
+            this.filType = EntityPreset.FILE_TYPE.JPG.FILE_TYPE;
         }
     }
 
@@ -94,7 +94,7 @@ public class Bookmark {
 
     public String getFilType() {
         if (null == this.filType || this.filType.isEmpty()) {
-            return EntityPreset.FileType.JPG.getFileType();
+            return EntityPreset.FILE_TYPE.JPG.FILE_TYPE;
         }
         return filType;
     }
@@ -163,13 +163,13 @@ public class Bookmark {
 
     public void setUrlS(String urlS) {
         if (null != urlS && !urlS.isEmpty()) {
-            String url = StringUtils.substringBetween(urlS, EntityPreset.Urls.OPEN.getMark(), EntityPreset.Urls.CLOSE1.getMark());
+            String url = StringUtils.substringBetween(urlS, EntityPreset.URLS.OPEN.MARK, EntityPreset.URLS.CLOSE1.MARK);
             if (null == url || url.isEmpty()) {
-                url = StringUtils.substringBetween(urlS, EntityPreset.Urls.OPEN.getMark(), EntityPreset.Urls.CLOSE2.getMark());
+                url = StringUtils.substringBetween(urlS, EntityPreset.URLS.OPEN.MARK, EntityPreset.URLS.CLOSE2.MARK);
             }
             this.urlS = url;
         }
-        this.filType = EntityPreset.FileType.JPG.getFileType();
+        this.filType = EntityPreset.FILE_TYPE.JPG.FILE_TYPE;
     }
 
     public AuthorDetails getAuthorDetails() {

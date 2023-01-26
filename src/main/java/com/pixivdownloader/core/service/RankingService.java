@@ -26,8 +26,8 @@ import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.pixivdownloader.core.constance.EntityPreset.HttpEnum.*;
-import static com.pixivdownloader.core.constance.EntityPreset.Rating.R18;
-import static com.pixivdownloader.core.constance.EntityPreset.Rating.R18G;
+import static com.pixivdownloader.core.constance.EntityPreset.RATING.R18;
+import static com.pixivdownloader.core.constance.EntityPreset.RATING.R18G;
 
 @Component
 public class RankingService extends PicService {
@@ -56,13 +56,13 @@ public class RankingService extends PicService {
             dateList.add(date);
             //date=2022-02-03
             for (int i1 = 1; i1 <= 2; i1++) {
-                String url = RANKINGURL.getUrl() + type + "&date=" + date + "&page=" + i1;
+                String url = RANKINGURL.URL + type + "&date=" + date + "&page=" + i1;
                 String body = requestUtils.getBodyByUrl(url);
                 String s1 = requestUtils.getRankingBody(body);
                 List<RankingPic> ranking1 = JSON.parseArray(s1, RankingPic.class);
                 for (RankingPic rankingPic : ranking1) {
                     rankingPic.setDate(date);
-                    rankingPic.setRankingType(type);
+                    rankingPic.setRATING_TYPE(type);
                 }
                 LOGGER.info("{}-{}排行榜共拉取到{}条!", date, type, ranking1.size());
                 ranking.addAll(ranking1);
@@ -81,7 +81,7 @@ public class RankingService extends PicService {
     public List<RankingPic> getPicsInfoByIds(List<RankingPic> ids) {
         RANKINGPATH = filePathProperties.getRANKING();
         List<RankingPic> bookmarkListAll = new ArrayList<>();
-        StringBuilder builder = new StringBuilder(MULTIPICDTLURL.getUrl());
+        StringBuilder builder = new StringBuilder(MULTIPICDTLURL.URL);
         int t = 0;
         String url = "";
         for (RankingPic id : ids) {
@@ -92,7 +92,7 @@ public class RankingService extends PicService {
                 String bodyByUrl = requestUtils.getBodyByUrl(url);
                 String multiPicBody = requestUtils.getMultiPicBody(bodyByUrl);
                 List<RankingPic> bookmarkList = JSON.parseArray(multiPicBody, RankingPic.class);
-                builder = new StringBuilder(MULTIPICDTLURL.getUrl());
+                builder = new StringBuilder(MULTIPICDTLURL.URL);
                 t = 0;
                 bookmarkListAll.addAll(bookmarkList);
             }
@@ -143,7 +143,7 @@ public class RankingService extends PicService {
             }
             for (RankingPic pic : ids) {
                 if (pic.getIllustId().equals(rankingPic.getId())) {
-                    rankingPic.setRankingType(pic.getRankingType());
+                    rankingPic.setRATING_TYPE(pic.getRATING_TYPE());
                     rankingPic.setDate(pic.getDate());
                     rankingPic.setIllustId(pic.getIllustId());
                     rankingPic.setRank(pic.getRank());
@@ -157,9 +157,9 @@ public class RankingService extends PicService {
         for (RankingPic rankingPic : list) {
             flag = false;
             StringBuilder pathBuilder = new StringBuilder(RANKINGPATH);
-            if (EntityPreset.RankingType.DAILY_R18.getRankingTyoe().equals(rankingPic.getRankingType())) {
+            if (EntityPreset.RATING_TYPE.DAILY_R18.RANKING_TYPE.equals(rankingPic.getRATING_TYPE())) {
                 pathBuilder.append(R18).append("\\").append(rankingPic.getDate()).append("\\");
-            } else if (EntityPreset.RankingType.R18G.getRankingTyoe().equals(rankingPic.getRankingType())) {
+            } else if (EntityPreset.RATING_TYPE.R18G.RANKING_TYPE.equals(rankingPic.getRATING_TYPE())) {
                 pathBuilder.append(R18G).append("\\").append(rankingPic.getDate()).append("\\");
             }
             String path = pathBuilder.toString();
@@ -201,9 +201,9 @@ public class RankingService extends PicService {
         for (int i1 = 0; i1 < bookmarkList.size(); i1++) {
             StringBuilder pathBuilder = new StringBuilder(RANKINGPATH);
             RankingPic bookmark = bookmarkList.get(i1);
-            if (EntityPreset.RankingType.DAILY_R18.getRankingTyoe().equals(bookmark.getRankingType())) {
+            if (EntityPreset.RATING_TYPE.DAILY_R18.RANKING_TYPE.equals(bookmark.getRATING_TYPE())) {
                 pathBuilder.append(R18).append("\\").append(bookmark.getDate()).append("\\");
-            } else if (EntityPreset.RankingType.R18G.getRankingTyoe().equals(bookmark.getRankingType())) {
+            } else if (EntityPreset.RATING_TYPE.R18G.RANKING_TYPE.equals(bookmark.getRATING_TYPE())) {
                 pathBuilder.append(R18G).append("\\").append(bookmark.getDate()).append("\\");
             }
             String path = pathBuilder.toString();
@@ -229,7 +229,7 @@ public class RankingService extends PicService {
             }
             for (int i = 0; i < bookmark.getPageCount(); i++) {
                 totalCount++;
-                String url = PICURL.getUrl() + bookmark.getUrlS() + "_p" + i + bookmark.getFilType();
+                String url = PICURL.URL + bookmark.getUrlS() + "_p" + i + bookmark.getFilType();
                 ResponseEntity<byte[]> responseEntity = null;
                 StringBuilder temptags = new StringBuilder();
                 for (String tag : bookmark.getTags()) {
@@ -247,21 +247,21 @@ public class RankingService extends PicService {
                         responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
                     } catch (RestClientException e) {
                         LOGGER.info("文件类型错误！修改重试……");
-                        if (EntityPreset.FileType.JPG.getFileType().equals(bookmark.getFilType())) {
-                            bookmark.setFilType(EntityPreset.FileType.PNG.getFileType());
+                        if (EntityPreset.FILE_TYPE.JPG.FILE_TYPE.equals(bookmark.getFilType())) {
+                            bookmark.setFilType(EntityPreset.FILE_TYPE.PNG.FILE_TYPE);
                             fileName = getRaningFileName(bookmark, i, temptags);
                             fileName = filesUtils.cutRankingFileName(fileName, bookmark, i, bookmark.getFilType());
-                            url = PICURL.getUrl() + bookmark.getUrlS() + "_p" + i + EntityPreset.FileType.PNG.getFileType();
+                            url = PICURL.URL + bookmark.getUrlS() + "_p" + i + EntityPreset.FILE_TYPE.PNG.FILE_TYPE;
                             f = new File(path + fileName);
                         }
                         try {
                             responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
                         } catch (RestClientException restClientException) {
                             LOGGER.info("文件类型错误！修改重试……");
-                            bookmark.setFilType(EntityPreset.FileType.GIF.getFileType());
+                            bookmark.setFilType(EntityPreset.FILE_TYPE.GIF.FILE_TYPE);
                             fileName = getRaningFileName(bookmark, i, temptags);
                             fileName = filesUtils.cutRankingFileName(fileName, bookmark, i, bookmark.getFilType());
-                            url = PICURL.getUrl() + bookmark.getUrlS() + "_p" + i + EntityPreset.FileType.GIF.getFileType();
+                            url = PICURL.URL + bookmark.getUrlS() + "_p" + i + EntityPreset.FILE_TYPE.GIF.FILE_TYPE;
                             f = new File(path + fileName);
                             try {
                                 responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);

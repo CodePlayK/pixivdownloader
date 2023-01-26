@@ -15,12 +15,12 @@ import java.util.List;
 @Mapper
 @Component
 public interface NovelMapper extends BaseMapper<NovelPo> {
-    @Select("select novel_id from novel where 1=1 and file_type ='RANKING'")
+    @Select("select novel_id from novel where file_type ='RANKING'")
     List<NovelPo> queryAllRankingNovelId();
 
-    @Select("select novel_id from novel where 1=1")
+    @Select("select novel_id from novel")
     List<NovelPo> queryAllNovelId();
 
-    @Select("select novel_id from novel where 1=1 and file_type ='FAVORITE'")
+    @Select("select novel_id from novel where file_type ='FAVORITE'")
     List<NovelPo> queryAllFavoriteNovelId();
 }

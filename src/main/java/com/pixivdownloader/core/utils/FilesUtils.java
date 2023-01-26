@@ -1,5 +1,6 @@
 package com.pixivdownloader.core.utils;
 
+import com.pixivdownloader.core.constance.EntityPreset;
 import com.pixivdownloader.core.entity.Bookmark;
 import com.pixivdownloader.core.entity.ranking.RankingPic;
 import com.pixivdownloader.core.properties.FilePathProperties;
@@ -23,6 +24,7 @@ import java.util.List;
 @Component
 public class FilesUtils {
     private final Logger LOGGER = LogManager.getLogger();
+    private final static String PATH_NAME_END = "图片保存路径";
     private final int MAXFILENAMELENGTH = 110;
     @Autowired
     private PathProperties pathProperties;
@@ -88,152 +90,40 @@ public class FilesUtils {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
             String s = null;
-            String s1 = null;
             while ((s = br.readLine()) != null) {//使用readLine方法，一次读一行
                 LOGGER.info(s);
-                switch (StringUtils.substringBefore(s, "=")) {
-                    case "R18图片保存路径":
-                        s1 = "R18图片保存路径";
-                        map.put("R18", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
+                for (EntityPreset.RATING RATING : EntityPreset.RATING.values()) {
+                    if (StringUtils.substringBefore(s, "=").equals(RATING.PATH_NAME)) {
+                        map.put(RATING.NAME, StringUtils.substringAfter(s, "="));
+                        createDir(s, RATING.PATH_NAME);
                         break;
-                    case "R18G图片保存路径":
-                        s1 = "R18G图片保存路径";
-                        map.put("R18G", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
-                        break;
-                    case "R18-GIF图片保存路径":
-                        s1 = "R18-GIF图片保存路径";
-                        map.put("R18GIF", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
-                        break;
-                    case "R18G-GIF图片保存路径":
-                        s1 = "R18G-GIF图片保存路径";
-                        map.put("R18GGIF", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
-                        break;
-                    case "R18-COMIC图片保存路径":
-                        s1 = "R18-COMIC图片保存路径";
-                        map.put("R18COMIC", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
-                        break;
-                    case "R18G-COMIC图片保存路径":
-                        s1 = "R18G-COMIC图片保存路径";
-                        map.put("R18GCOMIC", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
-                        break;
-                    case "NONEH-COMIC图片保存路径":
-                        s1 = "NONEH-COMIC图片保存路径";
-                        map.put("NONEHCOMIC", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
-                        break;
-                    case "非涩图保存路径":
-                        s1 = "非涩图保存路径";
-                        map.put("NONEH", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
-                        break;
-                    case "排行榜图片路径":
-                        s1 = "排行榜图片路径";
-                        map.put("RANKING", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
-                        break;
-                    case "R18小说排行榜保存路径":
-                        s1 = "R18小说排行榜保存路径";
-                        map.put("R18NOVELRANKING", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
-                        break;
-
-                    case "R18G小说排行榜保存路径":
-                        s1 = "R18G小说排行榜保存路径";
-                        map.put("R18GNOVELRANKING", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
-                        break;
-
-                    case "小说收藏保存路径":
-                        s1 = "小说收藏保存路径";
-                        map.put("NOVELPATH", StringUtils.substringAfter(s, "="));
-                        createDir(s, s1);
-                        break;
-                    default:
+                    }
                 }
             }
             br.close();
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
-        if (!map.containsKey("R18")) {
-            LOGGER.warn("config文件中未找到[R18图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "R18\\");
-            map.put("R18", LOCALPATH + "R18\\");
-            createDir(":" + LOCALPATH + "R18\\", "R18图片保存路径");
-        }
-        if (!map.containsKey("R18G")) {
-            LOGGER.warn("config文件中未找到[R18G图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "R18G\\");
-            map.put("R18G", LOCALPATH + "R18G\\");
-            createDir(":" + LOCALPATH + "R18G\\", "R18G图片保存路径");
-        }
-        if (!map.containsKey("R18GIF")) {
-            LOGGER.warn("config文件中未找到[R18-GIF图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "GIFR18\\");
-            map.put("R18GIF", LOCALPATH + "GIF\\R18\\");
-            createDir(":" + LOCALPATH + "GIFR18\\", "R18-GIF图片保存路径");
-        }
-        if (!map.containsKey("R18GGIF")) {
-            LOGGER.warn("config文件中未找到[R18G-GIF图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "GIF\\R18G\\");
-            map.put("R18GGIF", LOCALPATH + "GIF\\R18G\\");
-            createDir(":" + LOCALPATH + "GIF\\R18G\\", "R18G-GIF图片保存路径");
-        }
-        if (!map.containsKey("R18COMIC")) {
-            LOGGER.warn("config文件中未找到[R18-COMIC图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "COMIC\\R18-COMIC\\");
-            map.put("R18COMIC", LOCALPATH + "COMIC\\R18-COMIC\\");
-            createDir(":" + LOCALPATH + "COMIC\\R18-COMIC\\", "R18-COMIC图片保存路径");
-        }
-        if (!map.containsKey("R18GCOMIC")) {
-            LOGGER.warn("config文件中未找到[R18G-COMIC图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "COMIC\\R18G-COMIC\\");
-            map.put("R18GCOMIC", LOCALPATH + "COMIC\\R18G-COMIC\\");
-            createDir(":" + LOCALPATH + "COMIC\\R18G-COMIC\\", "R18G-COMIC图片保存路径");
-        }
-        if (!map.containsKey("NONEHCOMIC")) {
-            LOGGER.warn("config文件中未找到[NONEH-COMIC图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "COMIC\\NONEH-COMIC\\");
-            map.put("NONEHCOMIC", LOCALPATH + "COMIC\\NONEH-COMIC\\");
-            createDir(":" + LOCALPATH + "COMIC\\NONEH-COMIC\\", "NONEH-COMIC图片保存路径");
-        }
-        if (!map.containsKey("NONEH")) {
-            LOGGER.warn("config文件中未找到[NONEH图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "NONEH\\");
-            map.put("NONEH", LOCALPATH + "NONEH\\");
-            createDir(":" + LOCALPATH + "NONEH\\", "非涩图保存路径");
-        }
-        if (!map.containsKey("RANKING")) {
-            LOGGER.warn("config文件中未找到[RANKING图片保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "RANKING\\");
-            map.put("RANKING", LOCALPATH + "RANKING\\");
-            createDir(":" + LOCALPATH + "RANKING\\", "排行榜图片路径");
-        }
-        if (!map.containsKey("R18NOVELRANKING")) {
-            LOGGER.warn("config文件中未找到[R18NOVELRANKING小说排行榜保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "NOVEL\\RANKING\\R18\\");
-            map.put("R18NOVELRANKING", LOCALPATH + "NOVEL\\RANKING\\R18\\");
-            createDir(":" + LOCALPATH + "NOVEL\\RANKING\\R18\\", "R18小说排行榜保存路径");
-        }
-        if (!map.containsKey("R18GNOVELRANKING")) {
-            LOGGER.warn("config文件中未找到[R18GNOVELRANKING小说排行榜保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "NOVEL\\RANKING\\R18G\\");
-            map.put("R18GNOVELRANKING", LOCALPATH + "NOVEL\\RANKING\\R18G\\");
-            createDir(":" + LOCALPATH + "NOVEL\\RANKING\\R18G\\", "R18G小说排行榜保存路径");
-        }
-        if (!map.containsKey("NOVELPATH")) {
-            LOGGER.warn("config文件中未找到[NOVELPATH小说收藏保存路径]目录配置,默认放于jar包同目录![{}]", LOCALPATH + "NOVEL\\FAVORITE\\");
-            map.put("R18GNOVELRANKING", LOCALPATH + "NOVEL\\FAVORITE\\");
-            createDir(":" + LOCALPATH + "NOVEL\\FAVORITE\\", "NOVELPATH小说收藏保存路径");
+        for (EntityPreset.RATING RATING : EntityPreset.RATING.values()) {
+            if (!map.containsKey(RATING.NAME)) {
+                LOGGER.warn("config文件中未找到[{}}]目录配置,默认放于config文件同目录[{}]", RATING.PATH_NAME, LOCALPATH + RATING.NAME + "\\");
+                map.put(RATING.NAME, LOCALPATH + RATING.NAME + "\\");
+                createDir("=" + LOCALPATH + RATING.NAME + "\\", RATING.PATH_NAME);
+            }
         }
         LOGGER.warn(map);
-        filePathProperties.setR18PATH(map.get("R18"));
-        filePathProperties.setR18GPATH(map.get("R18G"));
-        filePathProperties.setR18GIFPATH(map.get("R18GIF"));
-        filePathProperties.setR18GGIFPATH(map.get("R18GGIF"));
-        filePathProperties.setR18COMICPATH(map.get("R18COMIC"));
-        filePathProperties.setR18GCOMICPATH(map.get("R18GCOMIC"));
-        filePathProperties.setNONEHCOMICPATH(map.get("NONEHCOMIC"));
-        filePathProperties.setNONEHPATH(map.get("NONEH"));
+        filePathProperties.setR18_PATH(map.get("R18"));
+        filePathProperties.setR18G_PATH(map.get("R18G"));
+        filePathProperties.setR18_GIF_PATH(map.get("R18_GIF"));
+        filePathProperties.setR18G_GIF_PATH(map.get("R18G_GIF"));
+        filePathProperties.setR18_COMIC_PATH(map.get("R18_COMIC"));
+        filePathProperties.setR18G_COMIC_PATH(map.get("R18G_COMIC"));
+        filePathProperties.setNONEH_COMIC_PATH(map.get("NONEH_COMIC"));
+        filePathProperties.setNONEH_PATH(map.get("NONEH"));
         filePathProperties.setRANKING(map.get("RANKING"));
-        filePathProperties.setR18GNOVELRANKING(map.get("R18GNOVELRANKING"));
-        filePathProperties.setR18NOVELRANKING(map.get("R18NOVELRANKING"));
-        filePathProperties.setNOVELPATH(map.get("NOVELPATH"));
+        filePathProperties.setR18G_NOVEL_RANKING(map.get("R18G_NOVEL_RANKING"));
+        filePathProperties.setR18_NOVEL_RANKING(map.get("R18_NOVEL_RANKING"));
+        filePathProperties.setNOVEL_PATH(map.get("NOVEL_PATH"));
         return filePathProperties;
     }
 

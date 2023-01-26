@@ -1,6 +1,7 @@
 package com.pixivdownloader.core.service;
 
 import com.alibaba.fastjson.JSON;
+import com.pixivdownloader.core.constance.EntityPreset;
 import com.pixivdownloader.core.entity.BookMarkListTask;
 import com.pixivdownloader.core.entity.Bookmark;
 import com.pixivdownloader.core.entity.DownloadTask;
@@ -30,6 +31,7 @@ import java.util.concurrent.*;
 @Component
 public class BookMarkListService extends PicService {
     private final Logger LOGGER = LogManager.getLogger();
+    private final static int THREAD_SIZE = 4;
     @Autowired
     private RequestUtils requestUtils;
     @Autowired
@@ -44,7 +46,8 @@ public class BookMarkListService extends PicService {
      * @return 收藏list
      */
     public List<Bookmark> getBookmarkList() throws InterruptedException {
-        final String BOOKMARK_LIST_URL = "https://www.pixiv.net/touch/ajax/user/bookmarks?id=" + cookieUtils.getUSERID() + "&type=illust&lang=zh&offset=0&limit=48&p=";
+        final String BOOKMARK_LIST_URL = EntityPreset.HttpEnum.BOOKMARK_LIST_URL_BEGIN.URL + cookieUtils.getUSERID()
+                + EntityPreset.HttpEnum.BOOKMARK_LIST_URL_END.URL;
         int lastPage = 1;
         String body = "";
         try {
@@ -63,13 +66,11 @@ public class BookMarkListService extends PicService {
         lastPage = requestUtils.getBetween(body, "\"lastPage\":", ",\"ads\"");
         assert bookmarkList != null;
         bookmarkList.clear();
-        int THREAD_SIZE = 4;
         Map<Integer, Integer> map = requestUtils.divideNumByPartNum(1, lastPage, THREAD_SIZE);
         ThreadPoolExecutor executor = new ThreadPoolExecutor(6, 10, 200, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(5));
         List<Future> futures = new ArrayList<>();
         for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
-            //BookMarkListTask getBookMarkListTask = new BookMarkListTask();
             BookMarkListTask getBookMarkListTask = applicationContext.getBean(BookMarkListTask.class);
             getBookMarkListTask.setBg(entry.getKey());
             getBookMarkListTask.setEnd(entry.getValue());
@@ -77,7 +78,6 @@ public class BookMarkListService extends PicService {
             futures.add(executor.submit(getBookMarkListTask));
         }
         executor.shutdown();
-        //while (!executor.isTerminated()) {
         try {
             executor.awaitTermination(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
@@ -101,11 +101,11 @@ public class BookMarkListService extends PicService {
                 continue;
             }
             if ("R-18G".equals(bookmark.getTags().get(0))) {
-                pathName = filePathProperties.getR18GPATH();
+                pathName = filePathProperties.getR18G_PATH();
             } else if ("R-18".equals(bookmark.getTags().get(0))) {
-                pathName = filePathProperties.getR18PATH();
+                pathName = filePathProperties.getR18_PATH();
             } else {
-                pathName = filePathProperties.getNONEHPATH();
+                pathName = filePathProperties.getNONEH_PATH();
             }
             File file = new File(pathName);
             String[] list = file.list();
@@ -141,7 +141,6 @@ public class BookMarkListService extends PicService {
         Set<List<Bookmark>> set = requestUtils.divideListByPartNum(bookmarkList, 5);
         for (List<Bookmark> bookmarks : set) {
             DownloadTask downloadTask = applicationContext.getBean(DownloadTask.class);
-            //DownloadTask downloadTask = new DownloadTask(bookmarks);
             downloadTask.setBookmarkList(bookmarks);
             executor.execute(downloadTask);
         }

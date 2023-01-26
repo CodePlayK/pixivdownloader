@@ -39,6 +39,8 @@ public class CookieUtils {
     private final String chromeKeyringPassword = null;
     File cookieStoreCopy = new File(".cookies.db");
     private String PHPSESSID;
+    private String COOKIES_ALL;
+    private String DEVICETOKEN;
     private String USERID;
     private byte[] windowsMasterKey;
     private InetSocketAddress inetSocketAddress;
@@ -82,10 +84,10 @@ public class CookieUtils {
      */
     public void getCookies() {
         getSysProxy();
-        String path = EntityPreset.BrowserPath.CHROME.getPath();
+        String path = EntityPreset.BROWSER_PATH.CHROME.PATH;
         String phpSessid = "";
-        Set<Cookie> cookies = processCookies(new File(EntityPreset.BrowserPath.CHROME.getPath()), EntityPreset.HttpEnum.PIXIVDOMAIN.getUrl());
-        HashMap<String, String> map = new HashMap<>();
+        StringBuilder builder = new StringBuilder();
+        Set<Cookie> cookies = processCookies(new File(EntityPreset.BROWSER_PATH.CHROME.PATH), EntityPreset.HttpEnum.PIXIVDOMAIN.URL);
         for (Cookie cookie : cookies) {
             if ("PHPSESSID".equals(cookie.getName())) {
                 phpSessid = cookie.getValue();
@@ -93,7 +95,6 @@ public class CookieUtils {
                     LOGGER.error("获取PHPSESSID失败!请确认是否已经在谷歌浏览器登录过Pixiv并允许储存cookie!");
                 } else {
                     LOGGER.warn("获取到的PHPSESSID:{}", phpSessid);
-                    map.put("PHPSESSID", phpSessid);
                     PHPSESSID = phpSessid;
                 }
                 String userid = StringUtils.substringBefore(phpSessid, "_");
@@ -101,12 +102,15 @@ public class CookieUtils {
                     LOGGER.error("获取从PHPSESSID中获取USERID失败!");
                 } else {
                     LOGGER.warn("获取到的USERID:{}", userid);
-                    map.put("USERID", userid);
                     USERID = userid;
                 }
-                break;
             }
+            if ("device_token".equals(cookie.getName())) {
+                DEVICETOKEN = cookie.getValue();
+            }
+            builder.append(cookie.getName()).append("=").append(cookie.getValue()).append("; ");
         }
+        COOKIES_ALL = builder.toString();
     }
 
     /**

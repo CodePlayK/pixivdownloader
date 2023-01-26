@@ -15,17 +15,17 @@ public class FilePathProperties {
 
     private static final FilePathProperties FILE_PATH_PROPERTIES = new FilePathProperties();
 
-    String R18PATH;
-    String R18GPATH;
-    String R18GIFPATH;
-    String R18GGIFPATH;
-    String R18COMICPATH;
-    String R18GCOMICPATH;
-    String R18GNOVELRANKING;
-    String R18NOVELRANKING;
-    String NOVELPATH;
-    String NONEHCOMICPATH;
-    String NONEHPATH;
+    String R18_PATH;
+    String R18G_PATH;
+    String R18_GIF_PATH;
+    String R18G_GIF_PATH;
+    String R18_COMIC_PATH;
+    String R18G_COMIC_PATH;
+    String R18G_NOVEL_RANKING;
+    String R18_NOVEL_RANKING;
+    String NOVEL_PATH;
+    String NONEH_COMIC_PATH;
+    String NONEH_PATH;
     String RANKING;
 
 

@@ -25,8 +25,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import static com.pixivdownloader.core.constance.EntityPreset.FileType.GIF;
-import static com.pixivdownloader.core.constance.EntityPreset.FileType.ZIP;
+import static com.pixivdownloader.core.constance.EntityPreset.FILE_TYPE.GIF;
+import static com.pixivdownloader.core.constance.EntityPreset.FILE_TYPE.ZIP;
 import static com.pixivdownloader.core.constance.EntityPreset.HttpEnum.PICURL;
 
 @Component
@@ -46,28 +46,31 @@ public class PicService {
 
 
     public void getPicByPage(List<Bookmark> bookmarkList) {
+        if (bookmarkList.size() == 0) {
+            return;
+        }
         LOGGER.warn("当前线程首个收藏：{}", bookmarkList.get(0).getTitle());
         boolean skipFlag = false;
         int successCount = 0;
         int skipCount = 0;
         int totalCount = 0;
-        String pathName = filePathProperties.getR18PATH();
+        String pathName = filePathProperties.getR18_PATH();
         for (int i1 = 0; i1 < bookmarkList.size(); i1++) {
             Bookmark bookmark = bookmarkList.get(i1);
             if ("R-18G".equals(bookmark.getTags().get(0))) {
-                pathName = filePathProperties.getR18GPATH();
+                pathName = filePathProperties.getR18G_PATH();
                 if (bookmark.getPageCount() > COMIC_SIZE) {
-                    pathName = filePathProperties.getR18GCOMICPATH();
+                    pathName = filePathProperties.getR18G_COMIC_PATH();
                 }
             } else if ("R-18".equals(bookmark.getTags().get(0))) {
-                pathName = filePathProperties.getR18PATH();
+                pathName = filePathProperties.getR18_PATH();
                 if (bookmark.getPageCount() > COMIC_SIZE) {
-                    pathName = filePathProperties.getR18COMICPATH();
+                    pathName = filePathProperties.getR18_COMIC_PATH();
                 }
             } else {
-                pathName = filePathProperties.getNONEHPATH();
+                pathName = filePathProperties.getNONEH_PATH();
                 if (bookmark.getPageCount() > COMIC_SIZE) {
-                    pathName = filePathProperties.getNONEHCOMICPATH();
+                    pathName = filePathProperties.getNONEH_COMIC_PATH();
                 }
             }
             LOGGER.info("开始下载第[{}/{}]条:{}", i1, bookmarkList.size(), bookmark.getTitle());
@@ -87,53 +90,33 @@ public class PicService {
             }
             for (int i = 0; i < bookmark.getPageCount(); i++) {
                 totalCount++;
-                String url = PICURL.getUrl() + bookmark.getUrlS() + "_p" + i + bookmark.getFilType();
                 ResponseEntity<byte[]> responseEntity = null;
                 StringBuilder temptags = new StringBuilder();
-                for (String tag : bookmark.getTags()) {
-                    temptags.append("_").append(tag);
-                }
+                bookmark.getTags().forEach(a -> temptags.append("_").append(a));
                 String fileName = getFileName(bookmark, i, temptags);
-                fileName = filesUtils.cutFileName(fileName, bookmark, i, bookmark.getFilType());
-                File f = new File(pathName + fileName);
-                if (f.exists()) {
-                    LOGGER.info("已存在:{},跳过……", fileName);
-                    skipCount++;
-                    continue;
-                } else {
-                    try {
-                        responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
-                    } catch (RestClientException e) {
-                        LOGGER.info("文件类型错误！修改重试……");
-                        if (EntityPreset.FileType.JPG.getFileType().equals(bookmark.getFilType())) {
-                            bookmark.setFilType(EntityPreset.FileType.PNG.getFileType());
-                            fileName = getFileName(bookmark, i, temptags);
-                            fileName = filesUtils.cutFileName(fileName, bookmark, i, bookmark.getFilType());
-                            url = PICURL.getUrl() + bookmark.getUrlS() + "_p" + i + EntityPreset.FileType.PNG.getFileType();
-                            f = new File(pathName + fileName);
-                        }
+                File f = null;
+                boolean flag = false;
+                for (EntityPreset.FILE_TYPE fileType : EntityPreset.FILE_TYPE.values()) {
+                    String url = PICURL.URL + bookmark.getUrlS() + "_p" + i + fileType.FILE_TYPE;
+                    fileName = filesUtils.cutFileName(fileName, bookmark, i, bookmark.getFilType());
+                    f = new File(pathName + fileName);
+                    if (f.exists()) {
+                        LOGGER.info("已存在:{},跳过……", fileName);
+                        skipCount++;
+                        break;
+                    } else {
                         try {
                             responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
-                        } catch (RestClientException restClientException) {
-                            LOGGER.info("文件类型错误！修改重试……");
-                            bookmark.setFilType(EntityPreset.FileType.GIF.getFileType());
-                            fileName = getFileName(bookmark, i, temptags);
-                            fileName = filesUtils.cutFileName(fileName, bookmark, i, bookmark.getFilType());
-                            url = PICURL.getUrl() + bookmark.getUrlS() + "_p" + i + EntityPreset.FileType.GIF.getFileType();
-                            f = new File(pathName + fileName);
-                            try {
-                                responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
-                            } catch (Exception exception) {
-                                LOGGER.warn("下载失败:{}", fileName);
-                                LOGGER.warn("失败链接:{}", bookmark.getUrlS());
-                                LOGGER.warn("跳过……");
-                                break;
-                            }
-
+                            flag = true;
+                            break;
+                        } catch (RestClientException e) {
+                            LOGGER.info("【{}】文件类型错误！修改重试……", fileType.FILE_TYPE);
                         }
                     }
                 }
-
+                if (!flag) {
+                    continue;
+                }
                 if (!f.exists()) {
                     try {
                         f.createNewFile();
@@ -177,19 +160,19 @@ public class PicService {
      */
     public int getGif(Bookmark bookmark) {
         boolean skipFlag = false;
-        String pathName = filePathProperties.getR18GIFPATH();
+        String pathName = filePathProperties.getR18_GIF_PATH();
 
-        String url = EntityPreset.HttpEnum.GIFURL.getUrl() + bookmark.getUrlS() + EntityPreset.HttpEnum.URLZIP.getUrl();
+        String url = EntityPreset.HttpEnum.GIFURL.URL + bookmark.getUrlS() + EntityPreset.HttpEnum.URLZIP.URL;
         StringBuilder temptags = new StringBuilder();
         for (String tag : bookmark.getTags()) {
             temptags.append("_").append(tag);
         }
         if ("R-18G".equals(bookmark.getTags().get(0))) {
-            pathName = filePathProperties.getR18GGIFPATH();
+            pathName = filePathProperties.getR18G_GIF_PATH();
         }
         String fileName = bookmark.getBookmarkId() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
-                + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + GIF.getFileType();
-        fileName = filesUtils.cutFileName(fileName, bookmark, 0, GIF.getFileType());
+                + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + GIF.FILE_TYPE;
+        fileName = filesUtils.cutFileName(fileName, bookmark, 0, GIF.FILE_TYPE);
         File f = new File(pathName + fileName);
         File f1 = new File(pathName);
         for (String s : Objects.requireNonNull(f1.list())) {
@@ -203,7 +186,7 @@ public class PicService {
             return 1;
         } else {
             if (!f.exists()) {
-                fileName = StringUtils.substringBefore(fileName, GIF.getFileType()) + ZIP.getFileType();
+                fileName = StringUtils.substringBefore(fileName, GIF.FILE_TYPE) + ZIP.FILE_TYPE;
                 f = new File(pathName + fileName);
                 ResponseEntity<byte[]> bytes = requestUtils.requestStreamPreset(url, HttpMethod.GET);
                 if (!f.exists()) {
@@ -225,12 +208,12 @@ public class PicService {
                     LOGGER.error("{}解压失败!", pathName + fileName);
                     LOGGER.error(e.getMessage());
                 }
-                String fileName1 = StringUtils.substringBefore(fileName, ZIP.getFileType());
+                String fileName1 = StringUtils.substringBefore(fileName, ZIP.FILE_TYPE);
                 String[] fileList = filesUtils.findFileList(new File(pathName + "\\" + fileName1 + "\\"));
                 if (null == fileList || fileList.length == 0) {
                     LOGGER.error(pathName + "\\" + fileName1 + "\\");
                 }
-                gifUtils.jpgToGif(fileList, pathName + fileName1 + GIF.getFileType());
+                gifUtils.jpgToGif(fileList, pathName + fileName1 + GIF.FILE_TYPE);
                 filesUtils.deleteFolder(pathName + "\\" + fileName1 + "\\");
                 filesUtils.deleteFolder(pathName + "\\" + fileName);
             } else {
@@ -260,14 +243,14 @@ public class PicService {
      */
     public int getRankingGif(RankingPic bookmark, String path) {
         boolean skipFlag = false;
-        String url = EntityPreset.HttpEnum.GIFURL.getUrl() + bookmark.getUrlS() + EntityPreset.HttpEnum.URLZIP.getUrl();
+        String url = EntityPreset.HttpEnum.GIFURL.URL + bookmark.getUrlS() + EntityPreset.HttpEnum.URLZIP.URL;
         StringBuilder temptags = new StringBuilder();
         for (String tag : bookmark.getTags()) {
             temptags.append("_").append(tag);
         }
         String fileName = bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
-                + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + GIF.getFileType();
-        fileName = filesUtils.cutRankingFileName(fileName, bookmark, 0, GIF.getFileType());
+                + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + GIF.FILE_TYPE;
+        fileName = filesUtils.cutRankingFileName(fileName, bookmark, 0, GIF.FILE_TYPE);
         File f = new File(path + fileName);
         File f1 = new File(path);
         for (String s : Objects.requireNonNull(f1.list())) {
@@ -281,7 +264,7 @@ public class PicService {
             return 1;
         } else {
             if (!f.exists()) {
-                fileName = StringUtils.substringBefore(fileName, GIF.getFileType()) + ZIP.getFileType();
+                fileName = StringUtils.substringBefore(fileName, GIF.FILE_TYPE) + ZIP.FILE_TYPE;
                 f = new File(path + fileName);
                 ResponseEntity<byte[]> bytes = requestUtils.requestStreamPreset(url, HttpMethod.GET);
                 if (!f.exists()) {
@@ -303,12 +286,12 @@ public class PicService {
                     LOGGER.error("{}解压失败!", path + fileName);
                     LOGGER.error(e.getMessage());
                 }
-                String fileName1 = StringUtils.substringBefore(fileName, ZIP.getFileType());
+                String fileName1 = StringUtils.substringBefore(fileName, ZIP.FILE_TYPE);
                 String[] fileList = filesUtils.findFileList(new File(path + "\\" + fileName1 + "\\"));
                 if (null == fileList || fileList.length == 0) {
                     LOGGER.error(path + "\\" + fileName1 + "\\");
                 }
-                gifUtils.jpgToGif(fileList, path + fileName1 + GIF.getFileType());
+                gifUtils.jpgToGif(fileList, path + fileName1 + GIF.FILE_TYPE);
                 filesUtils.deleteFolder(path + "\\" + fileName1 + "\\");
                 filesUtils.deleteFolder(path + "\\" + fileName);
             } else {

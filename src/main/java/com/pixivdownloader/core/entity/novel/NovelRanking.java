@@ -10,6 +10,6 @@ import lombok.Data;
 public class NovelRanking {
     private Integer novelId;
     private Integer id;
-    private Integer bookmarkId;
+    private Long bookmarkId;
     private Integer rank;
 }

@@ -36,30 +36,25 @@ public class RequestUtils {
             return new HashSet<>();
         }
         Set<List<Bookmark>> set = new HashSet<>();
+        Map<Integer, List<Bookmark>> map = new HashMap<>();
         if (list.size() <= partNum) {
             for (int i = 0; i < partNum; i++) {
                 set.add(list);
             }
             return set;
         }
-        int size = list.size();
-        int part = size / partNum;
-        int bg = 0;
-        int end = part;
         for (int i = 0; i < partNum; i++) {
-            if (i < partNum - 1) {
-                List<Bookmark> list1;
-                list1 = list.subList(bg, end);
-                bg = end + 1;
-                end = end + part;
-                set.add(list1);
-            } else {
-                List<Bookmark> list1;
-                end = list.size() - 1;
-                list1 = list.subList(bg, end);
-                set.add(list1);
-            }
+            map.put(i, new ArrayList<>());
         }
+        int j = 0;
+        for (Bookmark bookmark : list) {
+            if (j == partNum) {
+                j = 0;
+            }
+            map.get(j).add(bookmark);
+            j++;
+        }
+        set.addAll(map.values());
         return set;
     }
 
@@ -68,30 +63,25 @@ public class RequestUtils {
             return new HashSet<>();
         }
         Set<List<RankingPic>> set = new HashSet<>();
+        Map<Integer, List<RankingPic>> map = new HashMap<>();
         if (list.size() <= partNum) {
             for (int i = 0; i < partNum; i++) {
                 set.add(list);
             }
             return set;
         }
-        int size = list.size();
-        int part = size / partNum;
-        int bg = 0;
-        int end = part;
         for (int i = 0; i < partNum; i++) {
-            if (i < partNum - 1) {
-                List<RankingPic> list1;
-                list1 = list.subList(bg, end);
-                bg = end + 1;
-                end = end + part;
-                set.add(list1);
-            } else {
-                List<RankingPic> list1;
-                end = list.size() - 1;
-                list1 = list.subList(bg, end);
-                set.add(list1);
-            }
+            map.put(i, new ArrayList<>());
         }
+        int j = 0;
+        for (RankingPic bookmark : list) {
+            if (j == partNum) {
+                j = 0;
+            }
+            map.get(j).add(bookmark);
+            j++;
+        }
+        set.addAll(map.values());
         return set;
     }
 
@@ -194,13 +184,13 @@ public class RequestUtils {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.COOKIE, PHPSESSID);
-        httpHeaders.add("user-agent", EntityPreset.HttpEnum.USERAGENT.getUrl());
+        httpHeaders.add("user-agent", EntityPreset.HttpEnum.USERAGENT.URL);
         SimpleClientHttpRequestFactory simpleClientHttpRequestFactory = new SimpleClientHttpRequestFactory();
         simpleClientHttpRequestFactory.setProxy(new Proxy(Proxy.Type.HTTP, cookieUtils.getInetSocketAddress()));
         restTemplate.setRequestFactory(simpleClientHttpRequestFactory);
         HttpEntity<Object> httpEntity = new HttpEntity<>(httpHeaders);
         LOGGER.info(url);
-        return restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
+        return restTemplate.exchange(url, httpMethod, httpEntity, String.class);
     }
 
     /***
@@ -213,9 +203,9 @@ public class RequestUtils {
         String PHPSESSID = "PHPSESSID=" + cookieUtils.getPHPSESSID() + "; Path=/; Domain=pixiv.net; Secure; HttpOnly;";
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("referer", EntityPreset.HttpEnum.REFERER.getUrl());
+        httpHeaders.add("referer", EntityPreset.HttpEnum.REFERER.URL);
         httpHeaders.add(HttpHeaders.COOKIE, PHPSESSID);
-        httpHeaders.add("user-agent", EntityPreset.HttpEnum.USERAGENT.getUrl());
+        httpHeaders.add("user-agent", EntityPreset.HttpEnum.USERAGENT.URL);
         SimpleClientHttpRequestFactory simpleClientHttpRequestFactory = new SimpleClientHttpRequestFactory();
         simpleClientHttpRequestFactory.setProxy(new Proxy(Proxy.Type.HTTP, cookieUtils.getInetSocketAddress()));
         restTemplate.setRequestFactory(simpleClientHttpRequestFactory);
