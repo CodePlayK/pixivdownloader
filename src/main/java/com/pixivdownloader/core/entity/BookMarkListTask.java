@@ -37,12 +37,12 @@ public class BookMarkListTask implements Callable {
 
     @Override
     public List<Bookmark> call() {
-        String BOOKMARKLISTURL = url;
+        String BOOKMARK_LIST_URL = url;
         List<Bookmark> bookmarkList = new ArrayList<>();
         LOGGER.info("开始获取第{}到{}页收藏……", bg, end);
         for (int i = bg; i <= end; i++) {
             LOGGER.info("开始获取第{}页收藏……", i);
-            String url = BOOKMARKLISTURL + i;
+            String url = BOOKMARK_LIST_URL + i;
             ResponseEntity<String> responseEntity = requestUtils.requestPreset(url, HttpMethod.GET);
             Objects.requireNonNull(bookmarkList).addAll(Objects.requireNonNull(JSON.parseArray(StringUtils.substringBetween(responseEntity.getBody(), "\"bookmarks\":", "],\"total\"") + "]", Bookmark.class)));
         }

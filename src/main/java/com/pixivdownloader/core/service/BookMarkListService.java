@@ -94,39 +94,51 @@ public class BookMarkListService extends PicService {
         }
         executor.shutdown();
         String pathName;
+        int skipCount = 0;
         List<Bookmark> list1 = new ArrayList<>();
+        HashMap<String, Integer> existFile = getExistFile();
         for (Bookmark bookmark : bookmarkList) {
-            if ("".equals(bookmark.getUrlS()) || null == bookmark.getUrlS()) {
-                LOGGER.warn("图片地址为空!跳过!:{}", bookmark.getTitle());
+            if (null != existFile.get(bookmark.getBookmarkId()) && existFile.get(bookmark.getBookmarkId()) >= bookmark.getPageCount()) {
+                //LOGGER.info("【{}】已全部下载,跳过",bookmark.getTitle());
+                skipCount++;
                 continue;
             }
-            if ("R-18G".equals(bookmark.getTags().get(0))) {
-                pathName = filePathProperties.getR18G_PATH();
-            } else if ("R-18".equals(bookmark.getTags().get(0))) {
-                pathName = filePathProperties.getR18_PATH();
-            } else {
-                pathName = filePathProperties.getNONEH_PATH();
+            if ("".equals(bookmark.getUrlS()) || null == bookmark.getUrlS()) {
+                LOGGER.warn("图片地址为空!跳过!:{}", bookmark.getTitle());
+                skipCount++;
+                continue;
             }
-            File file = new File(pathName);
+            LOGGER.info("【{}】{}-{}添加到下载队列", bookmark.getBookmarkId(), bookmark.getTitle(), bookmark.getAuthorDetails().getUserName());
+            list1.add(bookmark);
+        }
+        LOGGER.info("本次获取到的收藏共{}条,目标收藏条数:{},跳过:{}", bookmarkList.size(), list1.size(), skipCount);
+        return list1;
+    }
+
+    private HashMap<String, Integer> getExistFile() {
+        ArrayList<String> allPath = new ArrayList<>();
+        HashMap<String, Integer> map = new HashMap<>();
+        allPath.add(filePathProperties.getR18_PATH());
+        allPath.add(filePathProperties.getR18G_PATH());
+        allPath.add(filePathProperties.getR18_COMIC_PATH());
+        allPath.add(filePathProperties.getR18G_COMIC_PATH());
+        allPath.add(filePathProperties.getNONEH_PATH());
+        allPath.add(filePathProperties.getNONEH_COMIC_PATH());
+        String bookmarkId = "";
+        for (String s : allPath) {
+            File file = new File(s);
             String[] list = file.list();
-            int c = 0;
             assert list != null;
-            for (String s : list) {
-                for (int i = 0; i < bookmark.getPageCount(); i++) {
-                    if (s.contains(bookmark.getBookmarkId()) && s.contains("_p" + i)) {
-                        c++;
-                        break;
-                    }
+            for (String s1 : list) {
+                bookmarkId = StringUtils.substringBefore(s1, "_");
+                if (map.containsKey(bookmarkId)) {
+                    map.put(bookmarkId, map.get(bookmarkId) + 1);
+                } else {
+                    map.put(bookmarkId, 1);
                 }
             }
-            if (c < bookmark.getPageCount()) {
-                list1.add(bookmark);
-                LOGGER.info("图片加入下载队列!{}", bookmark.getTitle());
-            }
-
         }
-        LOGGER.info("本次获取到的收藏共{}条,目标收藏条数:{}", bookmarkList.size(), list1.size());
-        return list1;
+        return map;
     }
 
     /**

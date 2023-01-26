@@ -2,12 +2,16 @@ package com.pixivdownloader;
 
 import com.pixivdownloader.core.utils.CookieUtils;
 import com.pixivdownloader.core.utils.RequestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+
+import java.io.File;
+import java.util.HashSet;
 
 @SpringBootTest
 public class PixivdownloaderApplicationTests1 {
@@ -70,5 +74,26 @@ public class PixivdownloaderApplicationTests1 {
 
     String getLoginUrl() {
         return WEB_LOGIN_HEAD + "k-PwEqCIbvGHsTa317LXIFvU7cADUos8p8ytpe0yEEI" + WEB_LOGIN_END;
+    }
+
+    @Test
+    void testDeleteMulti() {
+        deleteMulti("E:\\Pixiv\\COMIC\\R18G-COMIC\\");
+    }
+
+    void deleteMulti(String path) {
+        HashSet<String> set = new HashSet<>();
+        File f = new File(path);
+        String[] flist = f.list();
+        for (String s : flist) {
+            if (!set.add(StringUtils.substringBeforeLast(s, "."))) {
+                File file = new File(path + StringUtils.substringBeforeLast(s, ".") + ".png");
+                File file1 = new File(path + StringUtils.substringBeforeLast(s, ".") + ".jpg");
+                System.out.println(file.getPath() + "-->" + file.delete());
+                System.out.println(file1.getPath() + "-->" + file1.delete());
+
+            }
+        }
+
     }
 }

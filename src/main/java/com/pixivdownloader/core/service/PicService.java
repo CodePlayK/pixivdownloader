@@ -45,6 +45,27 @@ public class PicService {
     protected static final int COMIC_SIZE = 35;
 
 
+    static int writeFile(int successCount, ResponseEntity<byte[]> responseEntity, String fileName, File f, Logger logger) {
+        if (!f.exists()) {
+            try {
+                f.createNewFile();
+            } catch (Exception e) {
+                logger.error("文件写入失败:{}", fileName);
+                logger.error(e.getMessage());
+            }
+        }
+        try (FileOutputStream out = new FileOutputStream(f)) {
+            out.write(Objects.requireNonNull(responseEntity.getBody()), 0, responseEntity.getBody().length);
+            out.flush();
+        } catch (Exception e) {
+            logger.error("文件写入失败:{}", fileName);
+            logger.error(e.getMessage());
+        }
+        logger.info("单张下载成功!:{}", fileName);
+        successCount++;
+        return successCount;
+    }
+
     public void getPicByPage(List<Bookmark> bookmarkList) {
         if (bookmarkList.size() == 0) {
             return;
@@ -95,12 +116,16 @@ public class PicService {
                 bookmark.getTags().forEach(a -> temptags.append("_").append(a));
                 String fileName = getFileName(bookmark, i, temptags);
                 File f = null;
+                File f1 = null;
+                File f2 = null;
                 boolean flag = false;
                 for (EntityPreset.FILE_TYPE fileType : EntityPreset.FILE_TYPE.values()) {
                     String url = PICURL.URL + bookmark.getUrlS() + "_p" + i + fileType.FILE_TYPE;
                     fileName = filesUtils.cutFileName(fileName, bookmark, i, bookmark.getFilType());
                     f = new File(pathName + fileName);
-                    if (f.exists()) {
+                    f1 = new File(pathName + StringUtils.substringBeforeLast(fileName, ".") + ".png");
+                    f2 = new File(pathName + StringUtils.substringBeforeLast(fileName, ".") + ".jpg");
+                    if (f.exists() || f1.exists() || f2.exists()) {
                         LOGGER.info("已存在:{},跳过……", fileName);
                         skipCount++;
                         break;
@@ -117,23 +142,7 @@ public class PicService {
                 if (!flag) {
                     continue;
                 }
-                if (!f.exists()) {
-                    try {
-                        f.createNewFile();
-                    } catch (Exception e) {
-                        LOGGER.error("文件写入失败:{}", fileName);
-                        LOGGER.error(e.getMessage());
-                    }
-                }
-                try (FileOutputStream out = new FileOutputStream(f)) {
-                    out.write(Objects.requireNonNull(responseEntity.getBody()), 0, responseEntity.getBody().length);
-                    out.flush();
-                } catch (Exception e) {
-                    LOGGER.error("文件写入失败:{}", fileName);
-                    LOGGER.error(e.getMessage());
-                }
-                LOGGER.info("单张下载成功!:{}", fileName);
-                successCount++;
+                successCount = writeFile(successCount, responseEntity, fileName, f, LOGGER);
             }
             LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
         }

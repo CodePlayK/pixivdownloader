@@ -5,6 +5,7 @@ import com.pixivdownloader.core.entity.ranking.RankingPic;
 import com.pixivdownloader.core.utils.RequestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@SpringBootTest
 public class test {
     @Test
     void moveNonehPic() throws IOException {
@@ -97,4 +99,6 @@ public class test {
             }
         }
     }
+
+
 }

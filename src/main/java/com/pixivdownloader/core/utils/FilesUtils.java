@@ -20,15 +20,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class FilesUtils {
     private final Logger LOGGER = LogManager.getLogger();
-    private final static String PATH_NAME_END = "图片保存路径";
-    private final int MAXFILENAMELENGTH = 110;
+    private static final int MAX_FILE_NAME_LENGTH = 110;
     @Autowired
     private PathProperties pathProperties;
-    private String LOCALPATH = "";
     @Autowired
     private FilePathProperties filePathProperties;
 
@@ -70,21 +69,18 @@ public class FilesUtils {
 
     /***
      * 获取并声称目录
-     * @return
      */
-    public FilePathProperties getDir() {
-        LOCALPATH = pathProperties.getConfigFilePath();
+    public void getDir() {
+        String LOCAL_PATH = pathProperties.getConfigFilePath();
         ApplicationHome ah = new ApplicationHome(FilesUtils.class);
-        File file = new File(LOCALPATH + "config.txt");
+        File file = new File(LOCAL_PATH + "config.txt");
         if (!file.exists()) {
-            LOCALPATH = ah.getDir() + "\\";
+            LOCAL_PATH = ah.getDir() + "\\";
         }
-        file = new File(LOCALPATH + "config.txt");
+        file = new File(LOCAL_PATH + "config.txt");
         /*
         打包后在非工程目录下运行jar包时启用此方法
         */
-        //LOCALPATH = getPath();
-
         LOGGER.info("当前目录:{}", file.getAbsolutePath());
         HashMap<String, String> map = new HashMap<>();
         try {
@@ -106,9 +102,9 @@ public class FilesUtils {
         }
         for (EntityPreset.RATING RATING : EntityPreset.RATING.values()) {
             if (!map.containsKey(RATING.NAME)) {
-                LOGGER.warn("config文件中未找到[{}}]目录配置,默认放于config文件同目录[{}]", RATING.PATH_NAME, LOCALPATH + RATING.NAME + "\\");
-                map.put(RATING.NAME, LOCALPATH + RATING.NAME + "\\");
-                createDir("=" + LOCALPATH + RATING.NAME + "\\", RATING.PATH_NAME);
+                LOGGER.warn("config文件中未找到[{}}]目录配置,默认放于config文件同目录[{}]", RATING.PATH_NAME, LOCAL_PATH + RATING.NAME + "\\");
+                map.put(RATING.NAME, LOCAL_PATH + RATING.NAME + "\\");
+                createDir("=" + LOCAL_PATH + RATING.NAME + "\\", RATING.PATH_NAME);
             }
         }
         LOGGER.warn(map);
@@ -124,27 +120,24 @@ public class FilesUtils {
         filePathProperties.setR18G_NOVEL_RANKING(map.get("R18G_NOVEL_RANKING"));
         filePathProperties.setR18_NOVEL_RANKING(map.get("R18_NOVEL_RANKING"));
         filePathProperties.setNOVEL_PATH(map.get("NOVEL_PATH"));
-        return filePathProperties;
     }
 
     /**
      * 根据路径删除指定的目录或文件，无论存在与否
      *
      * @param sPath 要删除的目录或文件
-     * @return 删除成功返回 true，否则返回 false。
      */
-    public boolean deleteFolder(String sPath) {
+    public void deleteFolder(String sPath) {
         boolean flag = false;
         File file = new File(sPath);
         // 判断目录或文件是否存在
         if (!file.exists()) {  // 不存在返回 false
-            return flag;
         } else {
             // 判断是否为文件
             if (file.isFile()) {  // 为文件时调用删除文件方法
-                return deleteFile(sPath);
+                deleteFile(sPath);
             } else {  // 为目录时调用删除目录方法
-                return deleteDirectory(sPath);
+                deleteDirectory(sPath);
             }
         }
     }
@@ -185,7 +178,7 @@ public class FilesUtils {
         boolean flag = true;
         //删除文件夹下的所有文件(包括子目录)
         File[] files = dirFile.listFiles();
-        for (int i = 0; i < files.length; i++) {
+        for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
             //删除子文件
             if (files[i].isFile()) {
                 flag = deleteFile(files[i].getAbsolutePath());
@@ -216,13 +209,13 @@ public class FilesUtils {
      */
     public String cutFileName(String fileName, Bookmark bookmark, int pageNum, String fileType) {
         StringBuilder temptags = new StringBuilder();
-        if (getWordCount(fileName) >= MAXFILENAMELENGTH) {
+        if (getWordCount(fileName) >= MAX_FILE_NAME_LENGTH) {
             temptags.delete(0, temptags.length());
             LOGGER.info("文件名过长！修建标签长度……");
             int count1 = getWordCount(bookmark.getBookmarkId() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
                     + "_" + bookmark.getAuthorDetails().getUserName() + "_p" + pageNum + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_");
             for (String tag : bookmark.getTags()) {
-                if (getWordCount(temptags.toString()) <= (MAXFILENAMELENGTH - count1 - getWordCount(tag))) {
+                if (getWordCount(temptags.toString()) <= (MAX_FILE_NAME_LENGTH - count1 - getWordCount(tag))) {
                     temptags.append("_").append(tag);
                 } else {
                     break;
@@ -244,13 +237,13 @@ public class FilesUtils {
      */
     public String cutRankingFileName(String fileName, RankingPic bookmark, int pageNum, String fileType) {
         StringBuilder temptags = new StringBuilder();
-        if (getWordCount(fileName) >= MAXFILENAMELENGTH) {
+        if (getWordCount(fileName) >= MAX_FILE_NAME_LENGTH) {
             temptags.delete(0, temptags.length());
             LOGGER.info("文件名过长！修建标签长度……");
             int count1 = getWordCount(bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
                     + "_p0" + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_");
             for (String tag : bookmark.getTags()) {
-                if (getWordCount(temptags.toString()) <= (MAXFILENAMELENGTH - count1 - getWordCount(tag))) {
+                if (getWordCount(temptags.toString()) <= (MAX_FILE_NAME_LENGTH - count1 - getWordCount(tag))) {
                     temptags.append("_").append(tag);
                 } else {
                     break;
@@ -275,8 +268,8 @@ public class FilesUtils {
         }
         List<String> fileList = new ArrayList<>();
         String[] files = dir.list();// 读取目录下的所有目录文件信息
-        String[] strings = files;
-        for (String string : strings) {
+        assert files != null;
+        for (String string : files) {
             fileList.add(dir.getPath() + "\\" + string);
         }
         return fileList.toArray(files);

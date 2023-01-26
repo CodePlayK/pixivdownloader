@@ -88,8 +88,7 @@ public class Bookmark {
         if (bookmarkId.isEmpty()) {
             this.bookmarkId = ("0000000");
         }
-        String newIndex = StringUtils.substring(bookmarkId, 0, bookmarkId.length() - 1);
-        this.bookmarkId = newIndex;
+        this.bookmarkId = StringUtils.substring(bookmarkId, 0, bookmarkId.length() - 1);
     }
 
     public String getFilType() {

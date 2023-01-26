@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -275,23 +274,7 @@ public class RankingService extends PicService {
                     }
                 }
 
-                if (!f.exists()) {
-                    try {
-                        f.createNewFile();
-                    } catch (Exception e) {
-                        LOGGER.error("文件写入失败:{}", fileName);
-                        LOGGER.error(e.getMessage());
-                    }
-                }
-                try (FileOutputStream out = new FileOutputStream(f)) {
-                    out.write(Objects.requireNonNull(responseEntity.getBody()), 0, responseEntity.getBody().length);
-                    out.flush();
-                } catch (Exception e) {
-                    LOGGER.error("文件写入失败:{}", fileName);
-                    LOGGER.error(e.getMessage());
-                }
-                LOGGER.info("单张下载成功!:{}", fileName);
-                successCount++;
+                successCount = PicService.writeFile(successCount, responseEntity, fileName, f, LOGGER);
             }
             LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
         }
