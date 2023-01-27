@@ -15,8 +15,7 @@
 - 在except.properties中配置要过滤的关键字(针对排行榜)
 - 使用Chrome登录P站
 
->
-需要保证使用的Chrome版本的cookie的储存目录为`C:\Users\"用户名"\AppData\Local\Google\Chrome\User Data\Default\Network\Cookies`
+>需要保证使用的Chrome版本的cookie的储存目录为`C:\Users\"用户名"\AppData\Local\Google\Chrome\User Data\Default\Network\Cookies`
 
 - 登录vpn
 - 运行jar包
