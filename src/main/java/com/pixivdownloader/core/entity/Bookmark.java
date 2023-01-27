@@ -13,7 +13,7 @@ public class Bookmark {
     private List<String> tags;
     private String title;
     private String comment;
-    private int pageCount;
+    private int pageCount = 1;
     private String bookmarkId;
     private String filType;
     private AuthorDetails authorDetails;

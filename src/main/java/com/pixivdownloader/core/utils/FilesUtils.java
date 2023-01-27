@@ -10,22 +10,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.system.ApplicationHome;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Component
 public class FilesUtils {
     private final Logger LOGGER = LogManager.getLogger();
-    private static final int MAX_FILE_NAME_LENGTH = 110;
+    private static final int MAX_FILE_NAME_LENGTH = 90;
     @Autowired
     private PathProperties pathProperties;
     @Autowired
@@ -251,9 +246,31 @@ public class FilesUtils {
             }
             fileName =
                     bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
-                            + "_p" + pageNum + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + bookmark.getFilType();
+                            + "_p" + pageNum + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + fileType;
         }
         return fileName;
+    }
+
+    public int writeFile(int successCount, ResponseEntity<byte[]> responseEntity, File f, Logger logger) {
+        if (!f.exists()) {
+            try {
+                f.createNewFile();
+            } catch (Exception e) {
+                logger.error("文件写入失败:{}", f.getPath());
+                logger.error(e.getMessage());
+                return successCount;
+            }
+        }
+        try (FileOutputStream out = new FileOutputStream(f)) {
+            out.write(Objects.requireNonNull(responseEntity.getBody()), 0, responseEntity.getBody().length);
+            out.flush();
+        } catch (Exception e) {
+            logger.error("文件写入失败:{}", f.getPath());
+            logger.error(e.getMessage());
+            return successCount;
+        }
+        logger.info("【{}】单张下载成功!", f.getPath());
+        return ++successCount;
     }
 
     /**
@@ -274,4 +291,50 @@ public class FilesUtils {
         }
         return fileList.toArray(files);
     }
+
+
+    public HashMap<String, Integer> getExistFile() {
+        ArrayList<String> allPath = new ArrayList<>();
+        HashMap<String, Integer> map = new HashMap<>();
+        allPath.add(filePathProperties.getR18_PATH());
+        allPath.add(filePathProperties.getR18G_PATH());
+        allPath.add(filePathProperties.getR18_COMIC_PATH());
+        allPath.add(filePathProperties.getR18G_COMIC_PATH());
+        allPath.add(filePathProperties.getNONEH_PATH());
+        allPath.add(filePathProperties.getNONEH_COMIC_PATH());
+        allPath.add(filePathProperties.getR18_GIF_PATH());
+        allPath.add(filePathProperties.getR18G_GIF_PATH());
+        String bookmarkId = "";
+        for (String s : allPath) {
+            File file = new File(s);
+            String[] list = file.list();
+            assert list != null;
+            for (String s1 : list) {
+                bookmarkId = StringUtils.substringBefore(s1, "_");
+                if (map.containsKey(bookmarkId)) {
+                    map.put(bookmarkId, map.get(bookmarkId) + 1);
+                } else {
+                    map.put(bookmarkId, 1);
+                }
+            }
+        }
+        return map;
+    }
+
+
+    public HashSet<String> getExistPicId(String[] folder) {
+        HashSet<String> set = new HashSet<>();
+        for (String s : folder) {
+            File file = new File(s);
+            String[] list = file.list();
+            String picid = "";
+            assert list != null;
+            for (String s1 : list) {
+                picid = StringUtils.substringBefore(s1, "_") + "_" + StringUtils.substringBetween(s1, "_p", "_");
+                set.add(picid);
+            }
+        }
+        return set;
+    }
+
 }

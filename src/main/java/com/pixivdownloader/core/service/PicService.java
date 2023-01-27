@@ -19,9 +19,9 @@ import org.springframework.web.client.RestClientException;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,37 +45,26 @@ public class PicService {
     protected static final int COMIC_SIZE = 35;
 
 
-    static int writeFile(int successCount, ResponseEntity<byte[]> responseEntity, String fileName, File f, Logger logger) {
-        if (!f.exists()) {
-            try {
-                f.createNewFile();
-            } catch (Exception e) {
-                logger.error("文件写入失败:{}", fileName);
-                logger.error(e.getMessage());
-            }
-        }
-        try (FileOutputStream out = new FileOutputStream(f)) {
-            out.write(Objects.requireNonNull(responseEntity.getBody()), 0, responseEntity.getBody().length);
-            out.flush();
-        } catch (Exception e) {
-            logger.error("文件写入失败:{}", fileName);
-            logger.error(e.getMessage());
-        }
-        logger.info("单张下载成功!:{}", fileName);
-        successCount++;
-        return successCount;
-    }
-
     public void getPicByPage(List<Bookmark> bookmarkList) {
+        final String[] BOOKMARK_FOLDER = {
+                filePathProperties.getR18_PATH(),
+                filePathProperties.getR18G_PATH(),
+                filePathProperties.getR18_COMIC_PATH(),
+                filePathProperties.getR18G_COMIC_PATH(),
+                filePathProperties.getNONEH_PATH(),
+                filePathProperties.getNONEH_COMIC_PATH(),
+        };
         if (bookmarkList.size() == 0) {
             return;
         }
         LOGGER.warn("当前线程首个收藏：{}", bookmarkList.get(0).getTitle());
-        boolean skipFlag = false;
         int successCount = 0;
         int skipCount = 0;
         int totalCount = 0;
-        String pathName = filePathProperties.getR18_PATH();
+        String pathName = "";
+        String fileName = "";
+        String url = "";
+        HashSet<String> existPicId = filesUtils.getExistPicId(BOOKMARK_FOLDER);
         for (int i1 = 0; i1 < bookmarkList.size(); i1++) {
             Bookmark bookmark = bookmarkList.get(i1);
             if ("R-18G".equals(bookmark.getTags().get(0))) {
@@ -110,27 +99,27 @@ public class PicService {
                 }
             }
             for (int i = 0; i < bookmark.getPageCount(); i++) {
+                if (existPicId.contains(bookmark.getBookmarkId() + "_" + i)) {
+                    LOGGER.info("已存在:【{}】{},跳过……", bookmark.getBookmarkId() + "_p" + i, bookmark.getTitle());
+                    continue;
+                }
                 totalCount++;
                 ResponseEntity<byte[]> responseEntity = null;
                 StringBuilder temptags = new StringBuilder();
                 bookmark.getTags().forEach(a -> temptags.append("_").append(a));
-                String fileName = getFileName(bookmark, i, temptags);
                 File f = null;
-                File f1 = null;
-                File f2 = null;
                 boolean flag = false;
                 for (EntityPreset.FILE_TYPE fileType : EntityPreset.FILE_TYPE.values()) {
-                    String url = PICURL.URL + bookmark.getUrlS() + "_p" + i + fileType.FILE_TYPE;
-                    fileName = filesUtils.cutFileName(fileName, bookmark, i, bookmark.getFilType());
+                    fileName = getFileName(bookmark, i, temptags, fileType.FILE_TYPE);
+                    fileName = filesUtils.cutFileName(fileName, bookmark, i, fileType.FILE_TYPE);
                     f = new File(pathName + fileName);
-                    f1 = new File(pathName + StringUtils.substringBeforeLast(fileName, ".") + ".png");
-                    f2 = new File(pathName + StringUtils.substringBeforeLast(fileName, ".") + ".jpg");
-                    if (f.exists() || f1.exists() || f2.exists()) {
+                    if (f.exists()) {
                         LOGGER.info("已存在:{},跳过……", fileName);
                         skipCount++;
                         break;
                     } else {
                         try {
+                            url = PICURL.URL + bookmark.getUrlS() + "_p" + i + fileType.FILE_TYPE;
                             responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
                             flag = true;
                             break;
@@ -142,23 +131,21 @@ public class PicService {
                 if (!flag) {
                     continue;
                 }
-                successCount = writeFile(successCount, responseEntity, fileName, f, LOGGER);
+                successCount = filesUtils.writeFile(successCount, responseEntity, f, LOGGER);
             }
             LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
         }
-        java.text.NumberFormat numberformat = java.text.NumberFormat.getInstance();
-        numberformat.setMaximumFractionDigits(2);
-        LocalDateTime dt = LocalDateTime.now();
-        if (totalCount - skipCount == 0) {
-            LOGGER.warn("P站涩图下载结束!!!" + dt.getYear() + "年" + dt.getMonth() + "月" + dt.getDayOfMonth() + " " + dt.getHour() + "点" + dt.getMinute()
-                    + "分:本次下载完毕，收藏共:" + totalCount + "条，跳过:" + skipCount + "条，应下载:" +
-                    (totalCount - skipCount) + "条，下载成功:" + successCount + "条.");
-        } else {
-            LOGGER.warn("P站涩图下载结束!!!" + dt.getYear() + "年" + dt.getMonth() + "月" + dt.getDayOfMonth() + " " + dt.getHour() + "点" + dt.getMinute()
-                    + "分:本次下载完毕，收藏共:" + totalCount + "条，跳过:" + skipCount + "条，应下载:" +
-                    (totalCount - skipCount) + "条，下载成功:" + successCount + "条，成功率:" + new BigDecimal(successCount * 100).
-                    divide(new BigDecimal(totalCount - skipCount), 2, RoundingMode.HALF_UP) + "%");
+        LocalDateTime time = LocalDateTime.now();
+        DecimalFormat df = new DecimalFormat("0.00");
+        String sucRate = "100";
+        if (totalCount - skipCount > 0) {
+            sucRate = df.format((float) (successCount) / (totalCount - skipCount) * 100);
         }
+        LOGGER.warn(
+                "P站涩图下载结束!!!{},共收藏:{}张,跳过:{}张,需下载{}张,下载成功:{}成功率:{}%",
+                time.toString(), totalCount, skipCount, totalCount - skipCount, successCount, sucRate
+
+        );
     }
 
     /**
@@ -234,14 +221,14 @@ public class PicService {
         }
     }
 
-    protected String getFileName(Bookmark bookmark, int i, StringBuilder temptags) {
+    protected String getFileName(Bookmark bookmark, int i, StringBuilder temptags, String fileType) {
         return bookmark.getBookmarkId() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
-                + "_p" + i + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + bookmark.getFilType();
+                + "_p" + i + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + fileType;
     }
 
-    protected String getRaningFileName(RankingPic bookmark, int i, StringBuilder temptags) {
+    protected String getRaningFileName(RankingPic bookmark, int i, StringBuilder temptags, String fileType) {
         return bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
-                + "_p" + i + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + bookmark.getFilType();
+                + "_p" + i + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + fileType;
     }
 
     /**

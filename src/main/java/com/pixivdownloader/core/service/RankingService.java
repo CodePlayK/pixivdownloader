@@ -39,6 +39,7 @@ public class RankingService extends PicService {
     @Autowired
     private ApplicationContext applicationContext;
 
+
     /***
      * 获取排行榜
      * @param type 排行榜类型
@@ -197,6 +198,7 @@ public class RankingService extends PicService {
         int successCount = 0;
         int skipCount = 0;
         int totalCount = 0;
+        String fileName = "";
         for (int i1 = 0; i1 < bookmarkList.size(); i1++) {
             StringBuilder pathBuilder = new StringBuilder(RANKINGPATH);
             RankingPic bookmark = bookmarkList.get(i1);
@@ -211,6 +213,7 @@ public class RankingService extends PicService {
                 file.mkdirs();
                 LOGGER.info("创建[{}]目录成功!", path);
             }
+
             LOGGER.info("开始下载第[{}/{}]条:{}", i1, bookmarkList.size(), bookmark.getTitle());
             if ("2".equals(bookmark.getType())) {
                 totalCount++;
@@ -228,53 +231,37 @@ public class RankingService extends PicService {
             }
             for (int i = 0; i < bookmark.getPageCount(); i++) {
                 totalCount++;
-                String url = PICURL.URL + bookmark.getUrlS() + "_p" + i + bookmark.getFilType();
+                String url = "";
                 ResponseEntity<byte[]> responseEntity = null;
                 StringBuilder temptags = new StringBuilder();
                 for (String tag : bookmark.getTags()) {
                     temptags.append("_").append(tag);
                 }
-                String fileName = getRaningFileName(bookmark, i, temptags);
-                fileName = filesUtils.cutRankingFileName(fileName, bookmark, i, bookmark.getFilType());
-                File f = new File(path + fileName);
-                if (f.exists()) {
-                    LOGGER.info("已存在:{},跳过……", fileName);
-                    skipCount++;
-                    continue;
-                } else {
-                    try {
-                        responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
-                    } catch (RestClientException e) {
-                        LOGGER.info("文件类型错误！修改重试……");
-                        if (EntityPreset.FILE_TYPE.JPG.FILE_TYPE.equals(bookmark.getFilType())) {
-                            bookmark.setFilType(EntityPreset.FILE_TYPE.PNG.FILE_TYPE);
-                            fileName = getRaningFileName(bookmark, i, temptags);
-                            fileName = filesUtils.cutRankingFileName(fileName, bookmark, i, bookmark.getFilType());
-                            url = PICURL.URL + bookmark.getUrlS() + "_p" + i + EntityPreset.FILE_TYPE.PNG.FILE_TYPE;
-                            f = new File(path + fileName);
-                        }
+                File f = null;
+                boolean flag = false;
+                for (EntityPreset.FILE_TYPE fileType : EntityPreset.FILE_TYPE.values()) {
+                    fileName = getRaningFileName(bookmark, i, temptags, fileType.FILE_TYPE);
+                    fileName = filesUtils.cutRankingFileName(fileName, bookmark, i, fileType.FILE_TYPE);
+                    f = new File(path + fileName);
+                    if (f.exists()) {
+                        LOGGER.info("已存在:{},跳过……", fileName);
+                        skipCount++;
+                        break;
+                    } else {
                         try {
+                            url = PICURL.URL + bookmark.getUrlS() + "_p" + i + fileType.FILE_TYPE;
                             responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
-                        } catch (RestClientException restClientException) {
-                            LOGGER.info("文件类型错误！修改重试……");
-                            bookmark.setFilType(EntityPreset.FILE_TYPE.GIF.FILE_TYPE);
-                            fileName = getRaningFileName(bookmark, i, temptags);
-                            fileName = filesUtils.cutRankingFileName(fileName, bookmark, i, bookmark.getFilType());
-                            url = PICURL.URL + bookmark.getUrlS() + "_p" + i + EntityPreset.FILE_TYPE.GIF.FILE_TYPE;
-                            f = new File(path + fileName);
-                            try {
-                                responseEntity = requestUtils.requestStreamPreset(url, HttpMethod.GET);
-                            } catch (Exception exception) {
-                                LOGGER.warn("下载失败:{}", fileName);
-                                LOGGER.warn("失败链接:{}", bookmark.getUrlS());
-                                LOGGER.warn("跳过……");
-                                break;
-                            }
+                            flag = true;
+                            break;
+                        } catch (RestClientException e) {
+                            LOGGER.info("【{}】文件类型错误！修改重试……", fileType.FILE_TYPE);
                         }
                     }
                 }
-
-                successCount = PicService.writeFile(successCount, responseEntity, fileName, f, LOGGER);
+                if (!flag) {
+                    continue;
+                }
+                successCount = filesUtils.writeFile(successCount, responseEntity, f, LOGGER);
             }
             LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
         }
@@ -292,7 +279,6 @@ public class RankingService extends PicService {
         Set<List<RankingPic>> set = requestUtils.divideRankingListByPartNum(bookmarkList, 5);
         for (List<RankingPic> bookmarks : set) {
             RankingDownloadTask downloadTask = applicationContext.getBean(RankingDownloadTask.class);
-            //DownloadTask downloadTask = new DownloadTask(bookmarks);
             downloadTask.setBookmarkList(bookmarks);
             executor.execute(downloadTask);
         }

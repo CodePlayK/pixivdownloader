@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -96,10 +95,9 @@ public class BookMarkListService extends PicService {
         String pathName;
         int skipCount = 0;
         List<Bookmark> list1 = new ArrayList<>();
-        HashMap<String, Integer> existFile = getExistFile();
+        HashMap<String, Integer> existFile = filesUtils.getExistFile();
         for (Bookmark bookmark : bookmarkList) {
             if (null != existFile.get(bookmark.getBookmarkId()) && existFile.get(bookmark.getBookmarkId()) >= bookmark.getPageCount()) {
-                //LOGGER.info("【{}】已全部下载,跳过",bookmark.getTitle());
                 skipCount++;
                 continue;
             }
@@ -115,31 +113,6 @@ public class BookMarkListService extends PicService {
         return list1;
     }
 
-    private HashMap<String, Integer> getExistFile() {
-        ArrayList<String> allPath = new ArrayList<>();
-        HashMap<String, Integer> map = new HashMap<>();
-        allPath.add(filePathProperties.getR18_PATH());
-        allPath.add(filePathProperties.getR18G_PATH());
-        allPath.add(filePathProperties.getR18_COMIC_PATH());
-        allPath.add(filePathProperties.getR18G_COMIC_PATH());
-        allPath.add(filePathProperties.getNONEH_PATH());
-        allPath.add(filePathProperties.getNONEH_COMIC_PATH());
-        String bookmarkId = "";
-        for (String s : allPath) {
-            File file = new File(s);
-            String[] list = file.list();
-            assert list != null;
-            for (String s1 : list) {
-                bookmarkId = StringUtils.substringBefore(s1, "_");
-                if (map.containsKey(bookmarkId)) {
-                    map.put(bookmarkId, map.get(bookmarkId) + 1);
-                } else {
-                    map.put(bookmarkId, 1);
-                }
-            }
-        }
-        return map;
-    }
 
     /**
      * 根据分片后的收藏异步下载
