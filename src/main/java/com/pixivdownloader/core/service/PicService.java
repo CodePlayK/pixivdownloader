@@ -19,8 +19,6 @@ import org.springframework.web.client.RestClientException;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.text.DecimalFormat;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -135,17 +133,7 @@ public class PicService {
             }
             LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
         }
-        LocalDateTime time = LocalDateTime.now();
-        DecimalFormat df = new DecimalFormat("0.00");
-        String sucRate = "100";
-        if (totalCount - skipCount > 0) {
-            sucRate = df.format((float) (successCount) / (totalCount - skipCount) * 100);
-        }
-        LOGGER.warn(
-                "P站涩图下载结束!!!{},共收藏:{}张,跳过:{}张,需下载{}张,下载成功:{}成功率:{}%",
-                time.toString(), totalCount, skipCount, totalCount - skipCount, successCount, sucRate
-
-        );
+        RankingService.result(successCount, skipCount, totalCount, LOGGER);
     }
 
     /**

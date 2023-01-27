@@ -16,8 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
 import java.io.File;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -187,6 +186,19 @@ public class RankingService extends PicService {
         return list2;
     }
 
+    static void result(int successCount, int skipCount, int totalCount, Logger logger) {
+        LocalDateTime time = LocalDateTime.now();
+        DecimalFormat df = new DecimalFormat("0.00");
+        String sucRate = "100";
+        if (totalCount - skipCount > 0) {
+            sucRate = df.format((float) (successCount) / (totalCount - skipCount) * 100);
+        }
+        logger.warn(
+                "P站涩图下载结束!!!{},共收藏:{}张,跳过:{}张,需下载{}张,下载成功:{}成功率:{}%",
+                time.toString(), totalCount, skipCount, totalCount - skipCount, successCount, sucRate
+        );
+    }
+
     /**
      * 获取排行榜图片
      *
@@ -265,12 +277,7 @@ public class RankingService extends PicService {
             }
             LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
         }
-        java.text.NumberFormat numberformat = java.text.NumberFormat.getInstance();
-        numberformat.setMaximumFractionDigits(2);
-        LocalDateTime dt = LocalDateTime.now();
-        LOGGER.warn("P站涩图7日排行榜下载结束!!!" + dt.getYear() + "年" + dt.getMonth() + "月" + dt.getDayOfMonth() + " " + dt.getHour() + "点" + dt.getMinute()
-                + "分:本次下载完毕，收藏共:" + totalCount + "条，跳过:" + skipCount + "条，应下载:" +
-                (totalCount - skipCount) + "条，下载成功:" + successCount + "条，成功率:" + new BigDecimal(successCount * 100).divide(new BigDecimal(totalCount - skipCount + 1), 2, RoundingMode.HALF_UP) + "%");
+        result(successCount, skipCount, totalCount, LOGGER);
     }
 
 

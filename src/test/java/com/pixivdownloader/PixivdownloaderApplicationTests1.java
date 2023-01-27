@@ -96,7 +96,7 @@ public class PixivdownloaderApplicationTests1 {
 
     @Test
     void testDeleteMulti() {
-        deleteMulti("E:\\Pixiv\\COMIC\\R18G-COMIC\\");
+        deleteMulti("E:\\Pixiv\\R18G\\");
     }
 
     void deleteMulti(String path) {
