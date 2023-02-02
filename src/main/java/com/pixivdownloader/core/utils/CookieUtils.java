@@ -84,7 +84,6 @@ public class CookieUtils {
      */
     public void getCookies() {
         getSysProxy();
-        String path = EntityPreset.BROWSER_PATH.CHROME.PATH;
         String phpSessid = "";
         StringBuilder builder = new StringBuilder();
         Set<Cookie> cookies = processCookies(new File(EntityPreset.BROWSER_PATH.CHROME.PATH), EntityPreset.HttpEnum.PIXIVDOMAIN.URL);

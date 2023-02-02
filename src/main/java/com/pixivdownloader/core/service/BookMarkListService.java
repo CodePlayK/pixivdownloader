@@ -44,7 +44,7 @@ public class BookMarkListService extends PicService {
      *
      * @return 收藏list
      */
-    public List<Bookmark> getBookmarkList() throws InterruptedException {
+    public List<Bookmark> getBookmarkList() {
         final String BOOKMARK_LIST_URL = EntityPreset.HttpEnum.BOOKMARK_LIST_URL_BEGIN.URL + cookieUtils.getUSERID()
                 + EntityPreset.HttpEnum.BOOKMARK_LIST_URL_END.URL;
         int lastPage = 1;
@@ -53,7 +53,8 @@ public class BookMarkListService extends PicService {
             ResponseEntity<String> responseEntity = requestUtils.requestPreset(BOOKMARK_LIST_URL + "1", HttpMethod.GET);
             body = responseEntity.getBody();
         } catch (RestClientException e) {
-            LOGGER.error("[{}]解析响应失败,请检查谷歌浏览器Pixiv登录是否过期!:{}", StringUtils.substringBefore(e.getMessage(), ": [{"), e.getMessage());
+            LOGGER.error("[{}]解析响应失败,请检查谷歌浏览器Pixiv登录是否过期!:{}",
+                    StringUtils.substringBefore(e.getMessage(), ": [{"), e.getMessage());
         }
         String bookmarkBody = requestUtils.getBookmarkBody(body);
         List<Bookmark> bookmarkList = null;
@@ -92,7 +93,6 @@ public class BookMarkListService extends PicService {
             }
         }
         executor.shutdown();
-        String pathName;
         int skipCount = 0;
         List<Bookmark> list1 = new ArrayList<>();
         HashMap<String, Integer> existFile = filesUtils.getExistFile();
@@ -106,7 +106,8 @@ public class BookMarkListService extends PicService {
                 skipCount++;
                 continue;
             }
-            LOGGER.info("【{}】{}-{}添加到下载队列", bookmark.getBookmarkId(), bookmark.getTitle(), bookmark.getAuthorDetails().getUserName());
+            LOGGER.info("【{}】{}-{}添加到下载队列",
+                    bookmark.getBookmarkId(), bookmark.getTitle(), bookmark.getAuthorDetails().getUserName());
             list1.add(bookmark);
         }
         LOGGER.info("本次获取到的收藏共{}条,目标收藏条数:{},跳过:{}", bookmarkList.size(), list1.size(), skipCount);
