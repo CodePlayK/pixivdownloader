@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class FilesUtils {
@@ -115,6 +117,7 @@ public class FilesUtils {
         filePathProperties.setR18G_NOVEL_RANKING(map.get("R18G_NOVEL_RANKING"));
         filePathProperties.setR18_NOVEL_RANKING(map.get("R18_NOVEL_RANKING"));
         filePathProperties.setNOVEL_PATH(map.get("NOVEL_PATH"));
+        filePathProperties.setR34_PATH(map.get("R34"));
     }
 
     /**
@@ -337,4 +340,9 @@ public class FilesUtils {
         return set;
     }
 
+    public String passFaileName(String fileName) {
+        final Pattern pattern = Pattern.compile("[\\s\\\\/:*?\"<>|]");
+        Matcher matcher = pattern.matcher(fileName);
+        return matcher.replaceAll("-"); // 将匹配到的非法字符以空替换
+    }
 }

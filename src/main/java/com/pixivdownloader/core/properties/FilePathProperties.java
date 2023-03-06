@@ -27,6 +27,7 @@ public class FilePathProperties {
     String NONEH_COMIC_PATH;
     String NONEH_PATH;
     String RANKING;
+    String R34_PATH;
 
 
     private FilePathProperties() {

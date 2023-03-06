@@ -151,6 +151,24 @@ public class RequestUtils {
         return StringUtils.substringBetween(body, "\"ranking\":", ",\"ads\":{");
     }
 
+    public String getStingBy3Pin(String source, String pin, String open, String close) {
+        source = StringUtils.substringAfter(source, pin);
+        source = StringUtils.substringAfter(source, open);
+        return StringUtils.substringBefore(source, close);
+    }
+
+    public String getStingBy3PinIndex(String source, String pin, int index, String open, int indexOpen, String close, int indexClose) {
+        for (int i = 1; i <= index; i++) {
+            source = StringUtils.substringAfter(source, pin);
+        }
+        for (int i = 1; i <= indexOpen; i++) {
+            source = StringUtils.substringAfter(source, open);
+        }
+        for (int i = 1; i <= indexClose; i++) {
+            source = StringUtils.substringBefore(source, close);
+        }
+        return source;
+    }
 
     /**
      * 获取多图片body
@@ -214,4 +232,21 @@ public class RequestUtils {
         return restTemplate.exchange(url, HttpMethod.GET, httpEntity, byte[].class);
     }
 
+    /***
+     * 下载请求
+     * @param url
+     * @param httpMethod
+     * @return
+     */
+    public ResponseEntity<byte[]> requestStream34Preset(String url, HttpMethod httpMethod) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-agent", EntityPreset.HttpEnum.USERAGENT.URL);
+        SimpleClientHttpRequestFactory simpleClientHttpRequestFactory = new SimpleClientHttpRequestFactory();
+        simpleClientHttpRequestFactory.setProxy(new Proxy(Proxy.Type.HTTP, cookieUtils.getInetSocketAddress()));
+        restTemplate.setRequestFactory(simpleClientHttpRequestFactory);
+        HttpEntity<Object> httpEntity = new HttpEntity<>(httpHeaders);
+        LOGGER.info(url);
+        return restTemplate.exchange(url, HttpMethod.GET, httpEntity, byte[].class);
+    }
 }

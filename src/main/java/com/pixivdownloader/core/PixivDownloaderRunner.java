@@ -5,6 +5,7 @@ import com.pixivdownloader.core.entity.Bookmark;
 import com.pixivdownloader.core.entity.ranking.RankingPic;
 import com.pixivdownloader.core.service.BookMarkListService;
 import com.pixivdownloader.core.service.NovelService;
+import com.pixivdownloader.core.service.R34BookmarkService;
 import com.pixivdownloader.core.service.RankingService;
 import com.pixivdownloader.core.utils.CookieUtils;
 import com.pixivdownloader.core.utils.FilesUtils;
@@ -32,6 +33,8 @@ public class PixivDownloaderRunner implements CommandLineRunner {
     @Autowired
     private NovelService novelService;
     @Autowired
+    private R34BookmarkService r34BookmarkService;
+    @Autowired
     private CookieUtils cookieUtils;
 
     @Override
@@ -56,6 +59,9 @@ public class PixivDownloaderRunner implements CommandLineRunner {
         }
         List<RankingPic> picList = rankingService.getPicsInfoByIds(rankingList);
         rankingService.asyncDownloadRanking(picList, executor);
+
+        LOGGER.info("R34收藏下载开始！");
+        r34BookmarkService.process();
 
         executor.shutdown();
         LOGGER.info("所有线程启动完毕!");

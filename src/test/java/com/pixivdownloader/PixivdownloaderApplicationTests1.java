@@ -10,14 +10,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 
 @SpringBootTest
 public class PixivdownloaderApplicationTests1 {
@@ -33,6 +36,33 @@ public class PixivdownloaderApplicationTests1 {
     private CookieUtils cookieUtils;
     @Autowired
     private BookMarkListService bookMarkListService;
+
+    @Test
+    void test4() {
+        ResponseEntity<String> response = requestUtils.requestPreset("https://rule34.xxx/index.php?page=favorites&s=view&id=2376350&pid=0", HttpMethod.GET);
+        for (int i = 1; i <= 50; i++) {
+            String imgSrc = requestUtils.getStingBy3PinIndex(response.getBody(), "<![CDATA[", i, "https://wimg.rule34.xxx/thumbnails//", 1, "\"", 1);
+            String favorateId = StringUtils.substringBefore(imgSrc, "/");
+            String urlId = StringUtils.substringAfter(imgSrc, "thumbnail_");
+            String imgId = StringUtils.substringAfter(imgSrc, "?");
+            urlId = StringUtils.substringBefore(urlId, ".");
+            String url = "https://ahrimp4.rule34.xxx//images/" + favorateId + "/" + urlId + ".mp4";
+            String url_img = "https://rule34.xxx/index.php?page=post&s=view&id=" + imgId;
+            ResponseEntity<String> response1 = requestUtils.requestPreset(url_img, HttpMethod.GET);
+            String copyright = requestUtils.getStingBy3PinIndex(response1.getBody(), "Copyright", 1, "\">", 3, "<", 1);
+            String Character = requestUtils.getStingBy3PinIndex(response1.getBody(), "Character", 1, "\">", 3, "<", 1);
+            String Artist = requestUtils.getStingBy3PinIndex(response1.getBody(), "h6>Artist", 1, "\">", 3, "<", 1);
+            File file = new File("E:\\Pixiv\\R34\\" + copyright + "_" + Character + "_" + Artist + "_" + imgId + ".mp4");
+            ResponseEntity<byte[]> responseEntity = requestUtils.requestStream34Preset(url, HttpMethod.GET);
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                out.write(Objects.requireNonNull(responseEntity.getBody()), 0, responseEntity.getBody().length);
+                out.flush();
+            } catch (Exception e) {
+            }
+
+        }
+        LOGGER.info("test 结束");
+    }
 
     @Test
     void test3() {

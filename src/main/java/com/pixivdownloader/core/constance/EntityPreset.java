@@ -14,6 +14,7 @@ public interface EntityPreset {
         R18G_NOVEL_RANKING("R18G_NOVEL_RANKING", "R18G小说排行榜保存路径"),
         NOVEL_PATH("NOVEL_PATH", "小说收藏保存路径"),
         NONEH("NONEH", "非涩图保存路径"),
+        R34("R34", "R34视频收藏保存路径"),
         NONEH_COMIC("NONEH_COMIC", "NONEH-COMIC图片保存路径");
         public String NAME;
         public String PATH_NAME;
@@ -104,9 +105,10 @@ public interface EntityPreset {
         BROWSER_PATH(String path) {
             this.PATH = path;
         }
-
-
     }
 
+    enum RULE34 {
+
+    }
 
 }
