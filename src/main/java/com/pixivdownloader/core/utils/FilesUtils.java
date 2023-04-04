@@ -354,7 +354,7 @@ public class FilesUtils {
         //Arrays.fill(chars, 0, j, '▨');
         //Arrays.fill(chars, j, barLength, '⬚');
         Arrays.fill(chars, 0, j, '#');
-        Arrays.fill(chars, j, barLength, '_');
-        return "[" + threadName + "]" + i + "/" + max + " " + String.valueOf(chars);
+        Arrays.fill(chars, j, barLength, ' ');
+        return "[" + threadName + "]" + i + "/" + max + " " + "[" + String.valueOf(chars) + "]";
     }
 }
