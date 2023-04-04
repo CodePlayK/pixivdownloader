@@ -102,12 +102,12 @@ public class BookMarkListService extends PicService {
                 continue;
             }
             if ("".equals(bookmark.getUrlS()) || null == bookmark.getUrlS()) {
-                LOGGER.warn("图片地址为空!跳过!:{}", bookmark.getTitle());
+                //LOGGER.warn("图片地址为空!跳过!:{}", bookmark.getTitle());
                 skipCount++;
                 continue;
             }
-            LOGGER.info("【{}】{}-{}添加到下载队列",
-                    bookmark.getBookmarkId(), bookmark.getTitle(), bookmark.getAuthorDetails().getUserName());
+            //LOGGER.info("【{}】{}-{}添加到下载队列",
+            //        bookmark.getBookmarkId(), bookmark.getTitle(), bookmark.getAuthorDetails().getUserName());
             list1.add(bookmark);
         }
         LOGGER.info("本次获取到的收藏共{}条,目标收藏条数:{},跳过:{}", bookmarkList.size(), list1.size(), skipCount);

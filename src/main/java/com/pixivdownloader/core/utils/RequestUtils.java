@@ -207,7 +207,7 @@ public class RequestUtils {
         simpleClientHttpRequestFactory.setProxy(new Proxy(Proxy.Type.HTTP, cookieUtils.getInetSocketAddress()));
         restTemplate.setRequestFactory(simpleClientHttpRequestFactory);
         HttpEntity<Object> httpEntity = new HttpEntity<>(httpHeaders);
-        LOGGER.info(url);
+        //LOGGER.info(url);
         return restTemplate.exchange(url, httpMethod, httpEntity, String.class);
     }
 
@@ -228,7 +228,7 @@ public class RequestUtils {
         simpleClientHttpRequestFactory.setProxy(new Proxy(Proxy.Type.HTTP, cookieUtils.getInetSocketAddress()));
         restTemplate.setRequestFactory(simpleClientHttpRequestFactory);
         HttpEntity<Object> httpEntity = new HttpEntity<>(httpHeaders);
-        LOGGER.info(url);
+        //LOGGER.info(url);
         return restTemplate.exchange(url, HttpMethod.GET, httpEntity, byte[].class);
     }
 
@@ -246,7 +246,7 @@ public class RequestUtils {
         simpleClientHttpRequestFactory.setProxy(new Proxy(Proxy.Type.HTTP, cookieUtils.getInetSocketAddress()));
         restTemplate.setRequestFactory(simpleClientHttpRequestFactory);
         HttpEntity<Object> httpEntity = new HttpEntity<>(httpHeaders);
-        LOGGER.info(url);
+        //LOGGER.info(url);
         return restTemplate.exchange(url, HttpMethod.GET, httpEntity, byte[].class);
     }
 }

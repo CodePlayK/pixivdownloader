@@ -16,7 +16,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class R34BookmarkService {
@@ -43,6 +45,7 @@ public class R34BookmarkService {
         boolean flag = false;
         while (bookmarkResponse.getStatusCode() == HttpStatus.OK) {
             for (int i = 1; i <= 50; i++) {
+                System.out.println(filesUtils.getBar(i, 50, "R34下载-" + Thread.currentThread().getName()));
                 String imgSrc = requestUtils
                         .getStingBy3PinIndex(bookmarkResponse.getBody(), "<![CDATA[", i, BOOKMARK_OPEN, 1, "\"", 1);
                 if (imgSrc.isEmpty()) {
@@ -54,7 +57,7 @@ public class R34BookmarkService {
                 String urlId = StringUtils.substringAfter(imgSrc, "thumbnail_");
                 String imgId = StringUtils.substringAfter(imgSrc, "?");
                 if (existBookmark.containsKey(imgId)) {
-                    LOGGER.warn("该收藏已经下载成功，跳过！【{}】", existBookmark.get(imgId));
+                    //LOGGER.warn("该收藏已经下载成功，跳过！【{}】", existBookmark.get(imgId));
                     skip++;
                     continue;
                 }
@@ -66,7 +69,7 @@ public class R34BookmarkService {
                 String Character = filesUtils.passFaileName(requestUtils.getStingBy3PinIndex(detailResponse.getBody(), "Character", 1, "\">", 3, "<", 1));
                 String Artist = filesUtils.passFaileName(requestUtils.getStingBy3PinIndex(detailResponse.getBody(), "h6>Artist", 1, "\">", 3, "<", 1));
                 File file = new File(filePathProperties.getR34_PATH() + copyright + "_" + Character + "_" + Artist + "_" + imgId + ".mp4");
-                LOGGER.info("开始下载【{}】", file.getPath());
+                //LOGGER.info("开始下载【{}】", file.getPath());
                 ResponseEntity<byte[]> responseEntity = requestUtils.requestStream34Preset(url, HttpMethod.GET);
                 try (FileOutputStream out = new FileOutputStream(file)) {
                     out.write(Objects.requireNonNull(responseEntity.getBody()), 0, responseEntity.getBody().length);
@@ -106,7 +109,7 @@ public class R34BookmarkService {
             sucRate = df.format((float) (successCount) / (totalCount - skipCount) * 100);
         }
         LOGGER.warn(
-                "P站涩图下载结束!!!{},共收藏:{}张,跳过:{}张,需下载{}张,下载成功:{}成功率:{}%",
+                "R34下载结束!!!{},共收藏:{}张,跳过:{}张,需下载{}张,下载成功:{}成功率:{}%",
                 time.toString(), totalCount, skipCount, totalCount - skipCount, successCount, sucRate
         );
     }

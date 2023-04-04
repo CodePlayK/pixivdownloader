@@ -209,7 +209,7 @@ public class FilesUtils {
         StringBuilder temptags = new StringBuilder();
         if (getWordCount(fileName) >= MAX_FILE_NAME_LENGTH) {
             temptags.delete(0, temptags.length());
-            LOGGER.info("文件名过长！修建标签长度……");
+            //LOGGER.info("文件名过长！修建标签长度……");
             int count1 = getWordCount(bookmark.getBookmarkId() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
                     + "_" + bookmark.getAuthorDetails().getUserName() + "_p" + pageNum + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_");
             for (String tag : bookmark.getTags()) {
@@ -237,7 +237,7 @@ public class FilesUtils {
         StringBuilder temptags = new StringBuilder();
         if (getWordCount(fileName) >= MAX_FILE_NAME_LENGTH) {
             temptags.delete(0, temptags.length());
-            LOGGER.info("文件名过长！修建标签长度……");
+            //LOGGER.info("文件名过长！修建标签长度……");
             int count1 = getWordCount(bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
                     + "_p0" + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_");
             for (String tag : bookmark.getTags()) {
@@ -272,7 +272,7 @@ public class FilesUtils {
             logger.error(e.getMessage());
             return successCount;
         }
-        logger.info("【{}】单张下载成功!", f.getPath());
+        //logger.info("【{}】单张下载成功!", f.getPath());
         return ++successCount;
     }
 
@@ -344,5 +344,17 @@ public class FilesUtils {
         final Pattern pattern = Pattern.compile("[\\s\\\\/:*?\"<>|]");
         Matcher matcher = pattern.matcher(fileName);
         return matcher.replaceAll("-"); // 将匹配到的非法字符以空替换
+    }
+
+    public String getBar(int i, int max, String threadName) {
+
+        int barLength = 40;
+        char[] chars = new char[barLength];
+        int j = i * barLength / max;
+        //Arrays.fill(chars, 0, j, '▨');
+        //Arrays.fill(chars, j, barLength, '⬚');
+        Arrays.fill(chars, 0, j, '#');
+        Arrays.fill(chars, j, barLength, '_');
+        return "[" + threadName + "]" + i + "/" + max + " " + String.valueOf(chars);
     }
 }

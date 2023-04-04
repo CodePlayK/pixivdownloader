@@ -94,7 +94,7 @@ class PixivdownloaderApplicationTests {
             if (!set.contains(novelRanking.getNovelId())) {
                 writeSaveNovel(localPath, stringBuilder, stringBuilder1, novelRanking, fileSet, novelType);
             } else {
-                LOGGER.warn("[{}]已存在数据库中,跳过!", novelRanking.getNovelId());
+                //LOGGER.warn("[{}]已存在数据库中,跳过!", novelRanking.getNovelId());
             }
         }
     }
@@ -115,7 +115,7 @@ class PixivdownloaderApplicationTests {
         try {
             encodeEmoji(novelpo);
             novelMapper.insert(novelpo);
-            LOGGER.info("保存数据库成功[{}]", novelpo.getTitle());
+            //LOGGER.info("保存数据库成功[{}]", novelpo.getTitle());
         } catch (Exception e) {
             LOGGER.error("插入数据库失败![{}]", novelpo.getTitle());
             LOGGER.error(e.getMessage());
@@ -127,7 +127,7 @@ class PixivdownloaderApplicationTests {
     private void writeFile(String localPath, StringBuilder stringBuilder, StringBuilder stringBuilder1, Novel novel, NovelPo novelpo, Set<Integer> fileSet) throws IOException {
         String fileName = getFileName(stringBuilder, stringBuilder1, novel, localPath);
         if (fileSet.contains(novelpo.getNovelId())) {
-            LOGGER.warn("[{}]TXT已存在于本地文件,跳过!", fileName);
+            //LOGGER.warn("[{}]TXT已存在于本地文件,跳过!", fileName);
             return;
         }
         FileWriter fileWriter = new FileWriter(fileName);
@@ -136,7 +136,7 @@ class PixivdownloaderApplicationTests {
         bufferedWriter.flush();
         bufferedWriter.close();
         fileWriter.close();
-        LOGGER.info("[{}]写入TXT文件成功!", fileName);
+        //LOGGER.info("[{}]写入TXT文件成功!", fileName);
 
     }
 

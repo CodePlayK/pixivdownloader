@@ -8,6 +8,7 @@ import com.pixivdownloader.core.entity.novel.po.NovelPo;
 import com.pixivdownloader.core.mapper.novel.NovelMapper;
 import com.pixivdownloader.core.properties.FilePathProperties;
 import com.pixivdownloader.core.utils.CookieUtils;
+import com.pixivdownloader.core.utils.FilesUtils;
 import com.pixivdownloader.core.utils.RequestUtils;
 import com.vdurmont.emoji.EmojiManager;
 import com.vdurmont.emoji.EmojiParser;
@@ -44,6 +45,8 @@ public class NovelService {
 
     @Autowired
     private CookieUtils cookieUtils;
+    @Autowired
+    private FilesUtils filesUtils;
     @Autowired
     private RequestUtils requestUtils;
     @Autowired
@@ -174,13 +177,13 @@ public class NovelService {
         }
         StringBuilder stringBuilder = new StringBuilder();
         StringBuilder stringBuilder1 = new StringBuilder();
+        int m = novelRankings.size();
+        int i = 0;
+
         for (NovelRanking novelRanking : Objects.requireNonNull(novelRankings)) {
-            if (!set.contains(novelRanking.getNovelId())) {
-                writeSaveNovel(localPath, stringBuilder, stringBuilder1, novelRanking, fileSet, fileType, true);
-            } else {
-                writeSaveNovel(localPath, stringBuilder, stringBuilder1, novelRanking, fileSet, fileType, false);
-                LOGGER.warn("[{}]已存在数据库中,跳过!", novelRanking.getNovelId());
-            }
+            System.out.println(filesUtils.getBar(++i, m, "小说下载-" + Thread.currentThread().getName()));
+            //LOGGER.warn("[{}]已存在数据库中,跳过!", novelRanking.getNovelId());
+            writeSaveNovel(localPath, stringBuilder, stringBuilder1, novelRanking, fileSet, fileType, !set.contains(novelRanking.getNovelId()));
         }
     }
 
@@ -198,7 +201,7 @@ public class NovelService {
      */
     private void writeSaveNovel(String localPath, StringBuilder stringBuilder, StringBuilder stringBuilder1, NovelRanking novelRanking, Set<Integer> fileSet, String fileType, boolean saveFlag) throws IOException {
         if (fileSet.contains(novelRanking.getNovelId())) {
-            LOGGER.warn("[{}]TXT已存在于本地文件,跳过!", novelRanking.getNovelId());
+            //LOGGER.warn("[{}]TXT已存在于本地文件,跳过!", novelRanking.getNovelId());
             return;
         }
         String body = "";

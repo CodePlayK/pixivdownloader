@@ -29,6 +29,7 @@ import static com.pixivdownloader.core.constance.EntityPreset.HttpEnum.PICURL;
 
 @Component
 public class PicService {
+
     private final Logger LOGGER = LogManager.getLogger();
     @Autowired
     protected RequestUtils requestUtils;
@@ -62,8 +63,10 @@ public class PicService {
         String pathName = "";
         String fileName = "";
         String url = "";
+
         HashSet<String> existPicId = filesUtils.getExistPicId(BOOKMARK_FOLDER);
         for (int i1 = 0; i1 < bookmarkList.size(); i1++) {
+            System.out.println(filesUtils.getBar(i1 + 1, bookmarkList.size(), "涩图下载-" + Thread.currentThread().getName()));
             Bookmark bookmark = bookmarkList.get(i1);
             if ("R-18G".equals(bookmark.getTags().get(0))) {
                 pathName = filePathProperties.getR18G_PATH();
@@ -81,7 +84,7 @@ public class PicService {
                     pathName = filePathProperties.getNONEH_COMIC_PATH();
                 }
             }
-            LOGGER.info("开始下载第[{}/{}]条:{}", i1, bookmarkList.size(), bookmark.getTitle());
+            //LOGGER.info("开始下载第[{}/{}]条:{}", i1, bookmarkList.size(), bookmark.getTitle());
             if ("2".equals(bookmark.getType())) {
                 totalCount++;
                 try {
@@ -98,7 +101,7 @@ public class PicService {
             }
             for (int i = 0; i < bookmark.getPageCount(); i++) {
                 if (existPicId.contains(bookmark.getBookmarkId() + "_" + i)) {
-                    LOGGER.info("已存在:【{}】{},跳过……", bookmark.getBookmarkId() + "_p" + i, bookmark.getTitle());
+                    //LOGGER.info("已存在:【{}】{},跳过……", bookmark.getBookmarkId() + "_p" + i, bookmark.getTitle());
                     continue;
                 }
                 totalCount++;
@@ -112,7 +115,7 @@ public class PicService {
                     fileName = filesUtils.cutFileName(fileName, bookmark, i, fileType.FILE_TYPE);
                     f = new File(pathName + fileName);
                     if (f.exists()) {
-                        LOGGER.info("已存在:{},跳过……", fileName);
+                        //LOGGER.info("已存在:{},跳过……", fileName);
                         skipCount++;
                         break;
                     } else {
@@ -122,7 +125,7 @@ public class PicService {
                             flag = true;
                             break;
                         } catch (RestClientException e) {
-                            LOGGER.info("【{}】文件类型错误！修改重试……", fileType.FILE_TYPE);
+                            //LOGGER.info("【{}】文件类型错误！修改重试……", fileType.FILE_TYPE);
                         }
                     }
                 }
@@ -131,7 +134,7 @@ public class PicService {
                 }
                 successCount = filesUtils.writeFile(successCount, responseEntity, f, LOGGER);
             }
-            LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
+            //LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
         }
         RankingService.result(successCount, skipCount, totalCount, LOGGER);
     }
@@ -166,7 +169,7 @@ public class PicService {
             }
         }
         if (skipFlag) {
-            LOGGER.info("已存在:{},跳过……", fileName);
+            //LOGGER.info("已存在:{},跳过……", fileName);
             return 1;
         } else {
             if (!f.exists()) {
@@ -201,10 +204,10 @@ public class PicService {
                 filesUtils.deleteFolder(pathName + "\\" + fileName1 + "\\");
                 filesUtils.deleteFolder(pathName + "\\" + fileName);
             } else {
-                LOGGER.info("已存在:{},跳过……", pathName);
+                //LOGGER.info("已存在:{},跳过……", pathName);
                 return 1;
             }
-            LOGGER.info("GIF下载成功!:{}", fileName);
+            //LOGGER.info("GIF下载成功!:{}", fileName);
             return 0;
         }
     }
@@ -279,10 +282,10 @@ public class PicService {
                 filesUtils.deleteFolder(path + "\\" + fileName1 + "\\");
                 filesUtils.deleteFolder(path + "\\" + fileName);
             } else {
-                LOGGER.info("已存在:{},跳过……", path);
+                //LOGGER.info("已存在:{},跳过……", path);
                 return 1;
             }
-            LOGGER.info("GIF下载成功!:{}", fileName);
+            //LOGGER.info("GIF下载成功!:{}", fileName);
             return 0;
         }
     }

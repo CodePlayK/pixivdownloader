@@ -40,6 +40,7 @@ public class PixivDownloaderRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         LOGGER.info("初始化......");
+        test();
         filesUtils.getDir();
         cookieUtils.getCookies();
         ThreadPoolExecutor executor = new ThreadPoolExecutor(6, 10, 200, TimeUnit.MILLISECONDS,
@@ -68,5 +69,7 @@ public class PixivDownloaderRunner implements CommandLineRunner {
 
     }
 
+    private void test() {
+    }
 
 }

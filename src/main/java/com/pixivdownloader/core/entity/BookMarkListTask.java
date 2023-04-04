@@ -1,6 +1,7 @@
 package com.pixivdownloader.core.entity;
 
 import com.alibaba.fastjson.JSON;
+import com.pixivdownloader.core.utils.FilesUtils;
 import com.pixivdownloader.core.utils.RequestUtils;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -34,14 +35,20 @@ public class BookMarkListTask implements Callable {
     private String phpsessid;
     @Autowired
     private RequestUtils requestUtils;
+    @Autowired
+    private FilesUtils filesUtils;
 
     @Override
     public List<Bookmark> call() {
+
         String BOOKMARK_LIST_URL = url;
         List<Bookmark> bookmarkList = new ArrayList<>();
         LOGGER.info("开始获取第{}到{}页收藏……", bg, end);
-        for (int i = bg; i <= end; i++) {
-            LOGGER.info("开始获取第{}页收藏……", i);
+        int m = end - bg;
+        int j = 0;
+        for (int i = bg; i <= end; i++, j++) {
+            System.out.println(filesUtils.getBar(j, m, "获取所有收藏-" + Thread.currentThread().getName()));
+            //LOGGER.info("开始获取第{}页收藏……", i);
             String url = BOOKMARK_LIST_URL + i;
             ResponseEntity<String> responseEntity = requestUtils.requestPreset(url, HttpMethod.GET);
             Objects.requireNonNull(bookmarkList).addAll(Objects.requireNonNull(JSON.parseArray(StringUtils.substringBetween(responseEntity.getBody(), "\"bookmarks\":", "],\"total\"") + "]", Bookmark.class)));

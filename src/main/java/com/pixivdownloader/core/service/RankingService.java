@@ -152,8 +152,9 @@ public class RankingService extends PicService {
             list.add(rankingPic);
         }
         List<RankingPic> list2 = new ArrayList<>();
-
+        int j = 0;
         for (RankingPic rankingPic : list) {
+            System.out.println(filesUtils.getBar(++j, list.size(), "涩图排行榜拉取-" + Thread.currentThread().getName()));
             flag = false;
             StringBuilder pathBuilder = new StringBuilder(RANKINGPATH);
             if (EntityPreset.RATING_TYPE.DAILY_R18.RANKING_TYPE.equals(rankingPic.getRATING_TYPE())) {
@@ -178,7 +179,7 @@ public class RankingService extends PicService {
             }
             if (c < rankingPic.getPageCount()) {
                 list2.add(rankingPic);
-                LOGGER.info("图片加入下载队列!{}", rankingPic.getTitle());
+                //LOGGER.info("图片加入下载队列!{}", rankingPic.getTitle());
             }
         }
 
@@ -212,6 +213,7 @@ public class RankingService extends PicService {
         int totalCount = 0;
         String fileName = "";
         for (int i1 = 0; i1 < bookmarkList.size(); i1++) {
+            System.out.println(filesUtils.getBar(i1 + 1, bookmarkList.size(), "涩图排行榜下载-" + Thread.currentThread().getName()));
             StringBuilder pathBuilder = new StringBuilder(RANKINGPATH);
             RankingPic bookmark = bookmarkList.get(i1);
             if (EntityPreset.RATING_TYPE.DAILY_R18.RANKING_TYPE.equals(bookmark.getRATING_TYPE())) {
@@ -226,7 +228,7 @@ public class RankingService extends PicService {
                 LOGGER.info("创建[{}]目录成功!", path);
             }
 
-            LOGGER.info("开始下载第[{}/{}]条:{}", i1, bookmarkList.size(), bookmark.getTitle());
+            //LOGGER.info("开始下载第[{}/{}]条:{}", i1, bookmarkList.size(), bookmark.getTitle());
             if ("2".equals(bookmark.getType())) {
                 totalCount++;
                 try {
@@ -256,7 +258,7 @@ public class RankingService extends PicService {
                     fileName = filesUtils.cutRankingFileName(fileName, bookmark, i, fileType.FILE_TYPE);
                     f = new File(path + fileName);
                     if (f.exists()) {
-                        LOGGER.info("已存在:{},跳过……", fileName);
+                        //LOGGER.info("已存在:{},跳过……", fileName);
                         skipCount++;
                         break;
                     } else {
@@ -266,7 +268,7 @@ public class RankingService extends PicService {
                             flag = true;
                             break;
                         } catch (RestClientException e) {
-                            LOGGER.info("【{}】文件类型错误！修改重试……", fileType.FILE_TYPE);
+                            //LOGGER.info("【{}】文件类型错误！修改重试……", fileType.FILE_TYPE);
                         }
                     }
                 }
@@ -275,7 +277,7 @@ public class RankingService extends PicService {
                 }
                 successCount = filesUtils.writeFile(successCount, responseEntity, f, LOGGER);
             }
-            LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
+            //LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
         }
         result(successCount, skipCount, totalCount, LOGGER);
     }
