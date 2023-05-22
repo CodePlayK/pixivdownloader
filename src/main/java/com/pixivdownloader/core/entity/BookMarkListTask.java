@@ -47,8 +47,9 @@ public class BookMarkListTask implements Callable {
         int m = end - bg;
         int j = 0;
         for (int i = bg; i <= end; i++, j++) {
+
             System.out.println(filesUtils.getBar(j, m, "获取所有收藏-" + Thread.currentThread().getName()));
-            //LOGGER.info("开始获取第{}页收藏……", i);
+            LOGGER.info("开始获取第{}页收藏……", i);
             String url = BOOKMARK_LIST_URL + i;
             ResponseEntity<String> responseEntity = requestUtils.requestPreset(url, HttpMethod.GET);
             Objects.requireNonNull(bookmarkList).addAll(Objects.requireNonNull(JSON.parseArray(StringUtils.substringBetween(responseEntity.getBody(), "\"bookmarks\":", "],\"total\"") + "]", Bookmark.class)));

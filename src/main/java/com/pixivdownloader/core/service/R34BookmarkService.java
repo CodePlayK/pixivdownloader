@@ -57,7 +57,7 @@ public class R34BookmarkService {
                 String urlId = StringUtils.substringAfter(imgSrc, "thumbnail_");
                 String imgId = StringUtils.substringAfter(imgSrc, "?");
                 if (existBookmark.containsKey(imgId)) {
-                    //LOGGER.warn("该收藏已经下载成功，跳过！【{}】", existBookmark.get(imgId));
+                    LOGGER.warn("该收藏已经下载成功，跳过！【{}】", existBookmark.get(imgId));
                     skip++;
                     continue;
                 }
@@ -69,7 +69,7 @@ public class R34BookmarkService {
                 String Character = filesUtils.passFaileName(requestUtils.getStingBy3PinIndex(detailResponse.getBody(), "Character", 1, "\">", 3, "<", 1));
                 String Artist = filesUtils.passFaileName(requestUtils.getStingBy3PinIndex(detailResponse.getBody(), "h6>Artist", 1, "\">", 3, "<", 1));
                 File file = new File(filePathProperties.getR34_PATH() + copyright + "_" + Character + "_" + Artist + "_" + imgId + ".mp4");
-                //LOGGER.info("开始下载【{}】", file.getPath());
+                LOGGER.info("开始下载【{}】", file.getPath());
                 ResponseEntity<byte[]> responseEntity = requestUtils.requestStream34Preset(url, HttpMethod.GET);
                 try (FileOutputStream out = new FileOutputStream(file)) {
                     out.write(Objects.requireNonNull(responseEntity.getBody()), 0, responseEntity.getBody().length);

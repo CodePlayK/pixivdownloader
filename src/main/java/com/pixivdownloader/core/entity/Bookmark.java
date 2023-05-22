@@ -17,6 +17,28 @@ public class Bookmark {
     private String bookmarkId;
     private String filType;
     private AuthorDetails authorDetails;
+    private String aiType;
+
+    public String getAiType() {
+        return aiType;
+    }
+
+    public void setAiType(String aiType) {
+        if (aiType.equals("2")) {
+            this.aiType = "_AI";
+        } else {
+            this.aiType = "";
+        }
+    }
+
+    public String getPage() {
+        return page;
+    }
+
+    public void setPage(String page) {
+        this.page = page;
+    }
+
     private String urlS;
     private String urlSm;
     private String urlSs;

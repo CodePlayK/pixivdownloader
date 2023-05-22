@@ -17,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -45,6 +48,8 @@ public class BookMarkListService extends PicService {
      * @return 收藏list
      */
     public List<Bookmark> getBookmarkList() {
+
+        Map<String, Path> allPicIdPath = filesUtils.getAllPicIdbyPath(filePathProperties.getALL_PATH());
         final String BOOKMARK_LIST_URL = EntityPreset.HttpEnum.BOOKMARK_LIST_URL_BEGIN.URL + cookieUtils.getUSERID()
                 + EntityPreset.HttpEnum.BOOKMARK_LIST_URL_END.URL;
         int lastPage = 1;
@@ -95,6 +100,7 @@ public class BookMarkListService extends PicService {
         executor.shutdown();
         int skipCount = 0;
         List<Bookmark> list1 = new ArrayList<>();
+
         HashMap<String, Integer> existFile = filesUtils.getExistFile();
         for (Bookmark bookmark : bookmarkList) {
             if (null != existFile.get(bookmark.getBookmarkId()) && existFile.get(bookmark.getBookmarkId()) >= bookmark.getPageCount()) {
@@ -102,12 +108,25 @@ public class BookMarkListService extends PicService {
                 continue;
             }
             if ("".equals(bookmark.getUrlS()) || null == bookmark.getUrlS()) {
-                //LOGGER.warn("图片地址为空!跳过!:{}", bookmark.getTitle());
+                LOGGER.warn("图片地址为空!跳过!:{}", bookmark.getId());
+                if (allPicIdPath.containsKey(bookmark.getId())) {
+                    try {
+                        Path path = allPicIdPath.get(bookmark.getId());
+                        Files.walk(path)
+                                .filter(a -> a.getFileName().toString().contains(bookmark.getId()))
+                                .filter(a -> !a.getFileName().toString().contains("DEL"))
+                                .forEach(
+                                        a -> filesUtils.markAsDeleted(a.toString())
+                                );
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
                 skipCount++;
                 continue;
             }
-            //LOGGER.info("【{}】{}-{}添加到下载队列",
-            //        bookmark.getBookmarkId(), bookmark.getTitle(), bookmark.getAuthorDetails().getUserName());
+            LOGGER.info("【{}】{}-{}添加到下载队列",
+                    bookmark.getBookmarkId(), bookmark.getTitle(), bookmark.getAuthorDetails().getUserName());
             list1.add(bookmark);
         }
         LOGGER.info("本次获取到的收藏共{}条,目标收藏条数:{},跳过:{}", bookmarkList.size(), list1.size(), skipCount);

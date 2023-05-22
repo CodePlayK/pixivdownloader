@@ -19,6 +19,7 @@ import org.springframework.web.client.RestClientException;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -45,14 +46,12 @@ public class PicService {
 
 
     public void getPicByPage(List<Bookmark> bookmarkList) {
-        final String[] BOOKMARK_FOLDER = {
-                filePathProperties.getR18_PATH(),
+        final List<String> BOOKMARK_FOLDER = Arrays.asList(filePathProperties.getR18_PATH(),
                 filePathProperties.getR18G_PATH(),
                 filePathProperties.getR18_COMIC_PATH(),
                 filePathProperties.getR18G_COMIC_PATH(),
                 filePathProperties.getNONEH_PATH(),
-                filePathProperties.getNONEH_COMIC_PATH(),
-        };
+                filePathProperties.getNONEH_COMIC_PATH());
         if (bookmarkList.size() == 0) {
             return;
         }
@@ -84,7 +83,7 @@ public class PicService {
                     pathName = filePathProperties.getNONEH_COMIC_PATH();
                 }
             }
-            //LOGGER.info("开始下载第[{}/{}]条:{}", i1, bookmarkList.size(), bookmark.getTitle());
+            LOGGER.info("开始下载第[{}/{}]条:{}", i1, bookmarkList.size(), bookmark.getTitle());
             if ("2".equals(bookmark.getType())) {
                 totalCount++;
                 try {
@@ -101,7 +100,7 @@ public class PicService {
             }
             for (int i = 0; i < bookmark.getPageCount(); i++) {
                 if (existPicId.contains(bookmark.getBookmarkId() + "_" + i)) {
-                    //LOGGER.info("已存在:【{}】{},跳过……", bookmark.getBookmarkId() + "_p" + i, bookmark.getTitle());
+                    LOGGER.info("已存在:【{}】{},跳过……", bookmark.getBookmarkId() + "_p" + i, bookmark.getTitle());
                     continue;
                 }
                 totalCount++;
@@ -115,7 +114,7 @@ public class PicService {
                     fileName = filesUtils.cutFileName(fileName, bookmark, i, fileType.FILE_TYPE);
                     f = new File(pathName + fileName);
                     if (f.exists()) {
-                        //LOGGER.info("已存在:{},跳过……", fileName);
+                        LOGGER.info("已存在:{},跳过……", fileName);
                         skipCount++;
                         break;
                     } else {
@@ -125,16 +124,17 @@ public class PicService {
                             flag = true;
                             break;
                         } catch (RestClientException e) {
-                            //LOGGER.info("【{}】文件类型错误！修改重试……", fileType.FILE_TYPE);
+                            LOGGER.info("【{}】文件类型错误！修改重试……", fileType.FILE_TYPE);
                         }
                     }
                 }
                 if (!flag) {
+                    LOGGER.warn("下载失败！[{}]{}", bookmark.getId(), bookmark.getTitle());
                     continue;
                 }
                 successCount = filesUtils.writeFile(successCount, responseEntity, f, LOGGER);
             }
-            //LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
+            LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
         }
         RankingService.result(successCount, skipCount, totalCount, LOGGER);
     }
@@ -169,7 +169,7 @@ public class PicService {
             }
         }
         if (skipFlag) {
-            //LOGGER.info("已存在:{},跳过……", fileName);
+            LOGGER.info("已存在:{},跳过……", fileName);
             return 1;
         } else {
             if (!f.exists()) {
@@ -204,21 +204,21 @@ public class PicService {
                 filesUtils.deleteFolder(pathName + "\\" + fileName1 + "\\");
                 filesUtils.deleteFolder(pathName + "\\" + fileName);
             } else {
-                //LOGGER.info("已存在:{},跳过……", pathName);
+                LOGGER.info("已存在:{},跳过……", pathName);
                 return 1;
             }
-            //LOGGER.info("GIF下载成功!:{}", fileName);
+            LOGGER.info("GIF下载成功!:{}", fileName);
             return 0;
         }
     }
 
     protected String getFileName(Bookmark bookmark, int i, StringBuilder temptags, String fileType) {
-        return bookmark.getBookmarkId() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
+        return bookmark.getBookmarkId() + "_" + bookmark.getTags().get(0) + bookmark.getAiType() + "_" + bookmark.getTitle()
                 + "_p" + i + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + fileType;
     }
 
     protected String getRaningFileName(RankingPic bookmark, int i, StringBuilder temptags, String fileType) {
-        return bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
+        return bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + bookmark.getAiType() + "_" + bookmark.getTitle()
                 + "_p" + i + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + fileType;
     }
 
@@ -282,10 +282,10 @@ public class PicService {
                 filesUtils.deleteFolder(path + "\\" + fileName1 + "\\");
                 filesUtils.deleteFolder(path + "\\" + fileName);
             } else {
-                //LOGGER.info("已存在:{},跳过……", path);
+                LOGGER.info("已存在:{},跳过……", path);
                 return 1;
             }
-            //LOGGER.info("GIF下载成功!:{}", fileName);
+            LOGGER.info("GIF下载成功!:{}", fileName);
             return 0;
         }
     }

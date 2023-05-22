@@ -98,6 +98,11 @@ public class test {
                 System.out.println("移动完成:" + s);
             }
         }
+
+    }
+
+    private void novel() {
+
     }
 
 

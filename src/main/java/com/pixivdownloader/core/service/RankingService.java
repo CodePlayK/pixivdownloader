@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,8 +25,7 @@ import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.pixivdownloader.core.constance.EntityPreset.HttpEnum.*;
-import static com.pixivdownloader.core.constance.EntityPreset.RATING.R18;
-import static com.pixivdownloader.core.constance.EntityPreset.RATING.R18G;
+import static com.pixivdownloader.core.constance.EntityPreset.RATING.*;
 
 @Component
 public class RankingService extends PicService {
@@ -78,6 +78,8 @@ public class RankingService extends PicService {
      * @return 排行榜信息列表
      */
     public List<RankingPic> getPicsInfoByIds(List<RankingPic> ids) {
+        Map<String, Path> allPicIdPath = filesUtils.getAllPicIdbyPath(filePathProperties.getALL_PATH());
+
         RANKINGPATH = filePathProperties.getRANKING();
         List<RankingPic> bookmarkListAll = new ArrayList<>();
         StringBuilder builder = new StringBuilder(MULTIPICDTLURL.URL);
@@ -109,9 +111,13 @@ public class RankingService extends PicService {
         List<String> titles = exceptionProperties.getTitle();
         List<RankingPic> list = new ArrayList<>();
         boolean flag = false;
+
         for (RankingPic rankingPic : bookmarkListAll) {
             flag = false;
-
+            if (allPicIdPath.containsKey(rankingPic.getId())) {
+                LOGGER.warn("图片已经在收藏或者重复排行榜,跳过!:{}", rankingPic.getTitle(), rankingPic.getId());
+                continue;
+            }
             if (autherId.contains(rankingPic.getAuthorDetails().getUserId()) ||
                     picId.contains(rankingPic.getId())) {
                 LOGGER.warn("图片作者在排除列表中,跳过!:{}", rankingPic.getTitle());
@@ -179,7 +185,7 @@ public class RankingService extends PicService {
             }
             if (c < rankingPic.getPageCount()) {
                 list2.add(rankingPic);
-                //LOGGER.info("图片加入下载队列!{}", rankingPic.getTitle());
+                LOGGER.info("图片加入下载队列!{}", rankingPic.getTitle());
             }
         }
 
@@ -220,6 +226,8 @@ public class RankingService extends PicService {
                 pathBuilder.append(R18).append("\\").append(bookmark.getDate()).append("\\");
             } else if (EntityPreset.RATING_TYPE.R18G.RANKING_TYPE.equals(bookmark.getRATING_TYPE())) {
                 pathBuilder.append(R18G).append("\\").append(bookmark.getDate()).append("\\");
+            } else if (EntityPreset.RATING_TYPE.DAILY_R18_AI.RANKING_TYPE.equals(bookmark.getRATING_TYPE())) {
+                pathBuilder.append(R18_AI).append("\\").append(bookmark.getDate()).append("\\");
             }
             String path = pathBuilder.toString();
             File file = new File(path);
@@ -228,7 +236,7 @@ public class RankingService extends PicService {
                 LOGGER.info("创建[{}]目录成功!", path);
             }
 
-            //LOGGER.info("开始下载第[{}/{}]条:{}", i1, bookmarkList.size(), bookmark.getTitle());
+            LOGGER.info("开始下载第[{}/{}]条:{}", i1, bookmarkList.size(), bookmark.getTitle());
             if ("2".equals(bookmark.getType())) {
                 totalCount++;
                 try {
@@ -258,7 +266,7 @@ public class RankingService extends PicService {
                     fileName = filesUtils.cutRankingFileName(fileName, bookmark, i, fileType.FILE_TYPE);
                     f = new File(path + fileName);
                     if (f.exists()) {
-                        //LOGGER.info("已存在:{},跳过……", fileName);
+                        LOGGER.info("已存在:{},跳过……", fileName);
                         skipCount++;
                         break;
                     } else {
@@ -268,7 +276,7 @@ public class RankingService extends PicService {
                             flag = true;
                             break;
                         } catch (RestClientException e) {
-                            //LOGGER.info("【{}】文件类型错误！修改重试……", fileType.FILE_TYPE);
+                            LOGGER.info("【{}】文件类型错误！修改重试……", fileType.FILE_TYPE);
                         }
                     }
                 }
@@ -277,7 +285,7 @@ public class RankingService extends PicService {
                 }
                 successCount = filesUtils.writeFile(successCount, responseEntity, f, LOGGER);
             }
-            //LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
+            LOGGER.info("收藏下载成功!:{}", bookmark.getTitle());
         }
         result(successCount, skipCount, totalCount, LOGGER);
     }

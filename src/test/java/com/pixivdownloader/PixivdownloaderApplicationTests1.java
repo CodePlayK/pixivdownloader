@@ -2,6 +2,7 @@ package com.pixivdownloader;
 
 import com.pixivdownloader.core.service.BookMarkListService;
 import com.pixivdownloader.core.utils.CookieUtils;
+import com.pixivdownloader.core.utils.FilesUtils;
 import com.pixivdownloader.core.utils.RequestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -16,9 +17,14 @@ import org.springframework.util.MultiValueMap;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 
@@ -33,9 +39,26 @@ public class PixivdownloaderApplicationTests1 {
     @Autowired
     private RequestUtils requestUtils;
     @Autowired
+    private FilesUtils filesUtils;
+    @Autowired
     private CookieUtils cookieUtils;
     @Autowired
     private BookMarkListService bookMarkListService;
+
+
+    @Test
+    void test5() throws IOException {
+        HashMap<String, Path> map = new HashMap<>();
+        Files.walk(Paths.get("E:\\Pixiv\\RANKING")).filter(Files::isRegularFile)
+                .filter(a -> a.getFileName().toString().contains("_p0_"))
+                .filter(a -> !a.getFileName().toString().contains("AI"))
+                .forEach(
+                        a -> map.put(filesUtils.getPicIdbyPath(a.getFileName().toString()), a.getParent())
+                );
+        System.out.println();
+
+
+    }// size = 25749
 
     @Test
     void test4() {
@@ -126,7 +149,7 @@ public class PixivdownloaderApplicationTests1 {
 
     @Test
     void testDeleteMulti() {
-        deleteMulti("E:\\Pixiv\\R18G\\");
+        deleteMulti("E:\\Pixiv\\R18\\");
     }
 
     void deleteMulti(String path) {

@@ -3,6 +3,8 @@ package com.pixivdownloader.core.properties;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * 文件路径属性
  *
@@ -28,6 +30,7 @@ public class FilePathProperties {
     String NONEH_PATH;
     String RANKING;
     String R34_PATH;
+    List<String> ALL_PATH;
 
 
     private FilePathProperties() {

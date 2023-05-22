@@ -4,6 +4,7 @@ public interface EntityPreset {
 
     enum RATING implements EntityPreset {
         R18("R18", "R18图片保存路径"),
+        R18_AI("R18_AI", "R18_AI图片保存路径"),
         R18_COMIC("R18_COMIC", "R18-COMIC图片保存路径"),
         R18G_COMIC("R18G_COMIC", "R18G-COMIC图片保存路径"),
         R18G("R18G", "R18G图片保存路径"),
@@ -27,6 +28,7 @@ public interface EntityPreset {
 
     enum RATING_TYPE {
         DAILY_R18("daily_r18"),
+        DAILY_R18_AI("daily_r18_ai"),
         R18G("r18g");
         public String RANKING_TYPE;
 

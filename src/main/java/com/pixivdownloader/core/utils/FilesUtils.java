@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -118,6 +121,16 @@ public class FilesUtils {
         filePathProperties.setR18_NOVEL_RANKING(map.get("R18_NOVEL_RANKING"));
         filePathProperties.setNOVEL_PATH(map.get("NOVEL_PATH"));
         filePathProperties.setR34_PATH(map.get("R34"));
+        final List<String> ALL_PATH = Arrays.asList(filePathProperties.getR18_PATH(),
+                filePathProperties.getR18G_PATH(),
+                filePathProperties.getR18_GIF_PATH(),
+                filePathProperties.getR18_COMIC_PATH(),
+                filePathProperties.getR18G_COMIC_PATH(),
+                filePathProperties.getNONEH_PATH(),
+                filePathProperties.getNONEH_COMIC_PATH(),
+                filePathProperties.getRANKING());
+        filePathProperties.setALL_PATH(ALL_PATH);
+
     }
 
     /**
@@ -209,8 +222,8 @@ public class FilesUtils {
         StringBuilder temptags = new StringBuilder();
         if (getWordCount(fileName) >= MAX_FILE_NAME_LENGTH) {
             temptags.delete(0, temptags.length());
-            //LOGGER.info("文件名过长！修建标签长度……");
-            int count1 = getWordCount(bookmark.getBookmarkId() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
+            LOGGER.info("文件名过长！修建标签长度……");
+            int count1 = getWordCount(bookmark.getBookmarkId() + "_" + bookmark.getTags().get(0) + bookmark.getAiType() + "_" + bookmark.getTitle()
                     + "_" + bookmark.getAuthorDetails().getUserName() + "_p" + pageNum + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_");
             for (String tag : bookmark.getTags()) {
                 if (getWordCount(temptags.toString()) <= (MAX_FILE_NAME_LENGTH - count1 - getWordCount(tag))) {
@@ -220,7 +233,7 @@ public class FilesUtils {
                 }
             }
             fileName =
-                    bookmark.getBookmarkId() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
+                    bookmark.getBookmarkId() + "_" + bookmark.getTags().get(0) + bookmark.getAiType() + "_" + bookmark.getTitle()
                             + "_" + bookmark.getAuthorDetails().getUserName() + "_p" + pageNum + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + fileType;
         }
         return fileName;
@@ -237,8 +250,8 @@ public class FilesUtils {
         StringBuilder temptags = new StringBuilder();
         if (getWordCount(fileName) >= MAX_FILE_NAME_LENGTH) {
             temptags.delete(0, temptags.length());
-            //LOGGER.info("文件名过长！修建标签长度……");
-            int count1 = getWordCount(bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
+            LOGGER.info("文件名过长！修建标签长度……");
+            int count1 = getWordCount(bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + bookmark.getAiType() + "_" + bookmark.getTitle()
                     + "_p0" + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_");
             for (String tag : bookmark.getTags()) {
                 if (getWordCount(temptags.toString()) <= (MAX_FILE_NAME_LENGTH - count1 - getWordCount(tag))) {
@@ -248,7 +261,7 @@ public class FilesUtils {
                 }
             }
             fileName =
-                    bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + "_" + bookmark.getTitle()
+                    bookmark.getDate() + "_" + bookmark.getRank() + "_" + bookmark.getTags().get(0) + bookmark.getAiType() + "_" + bookmark.getTitle()
                             + "_p" + pageNum + "_" + bookmark.getId() + "_" + bookmark.getAuthorDetails().getUserId() + "_" + temptags + fileType;
         }
         return fileName;
@@ -272,7 +285,7 @@ public class FilesUtils {
             logger.error(e.getMessage());
             return successCount;
         }
-        //logger.info("【{}】单张下载成功!", f.getPath());
+        LOGGER.info("【{}】单张下载成功!", f.getPath());
         return ++successCount;
     }
 
@@ -325,7 +338,7 @@ public class FilesUtils {
     }
 
 
-    public HashSet<String> getExistPicId(String[] folder) {
+    public HashSet<String> getExistPicId(List<String> folder) {
         HashSet<String> set = new HashSet<>();
         for (String s : folder) {
             File file = new File(s);
@@ -340,12 +353,26 @@ public class FilesUtils {
         return set;
     }
 
+    /**
+     * 过滤非法字符
+     *
+     * @param fileName
+     * @return
+     */
     public String passFaileName(String fileName) {
         final Pattern pattern = Pattern.compile("[\\s\\\\/:*?\"<>|]");
         Matcher matcher = pattern.matcher(fileName);
         return matcher.replaceAll("-"); // 将匹配到的非法字符以空替换
     }
 
+    /**
+     * 进度条打印
+     *
+     * @param i
+     * @param max
+     * @param threadName
+     * @return
+     */
     public String getBar(int i, int max, String threadName) {
 
         int barLength = 40;
@@ -357,4 +384,47 @@ public class FilesUtils {
         Arrays.fill(chars, j, barLength, ' ');
         return "[" + threadName + "]" + i + "/" + max + " " + "[" + String.valueOf(chars) + "]";
     }
+
+    /**
+     * 从文件名中截取id
+     *
+     * @param fileName
+     * @return
+     */
+    public String getPicIdbyPath(String fileName) {
+        return StringUtils.substringBetween(fileName, "_p0_", "_");
+    }
+
+    /***
+     * 根据路遍历所有未被画师删除的图片
+     * @param paths
+     * @return
+     */
+    public Map<String, Path> getAllPicIdbyPath(List<String> paths) {
+        HashMap<String, Path> map = new HashMap<>();
+        for (String path : paths) {
+            try {
+                Files.walk(Paths.get(path)).filter(Files::isRegularFile)
+                        .filter(a -> a.getFileName().toString().contains("_p0_"))
+                        .filter(a -> !a.getFileName().toString().contains("AI"))
+                        .forEach(
+                                a -> map.put(getPicIdbyPath(a.getFileName().toString()), a.getParent())
+                        );
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return map;
+    }
+
+    public void markAsDeleted(String path) {
+        LOGGER.info("已失效文件:[{}]", path);
+        File file = new File(path);
+        String replace = StringUtils.replace(path, ".", "_DEL.");
+        file.renameTo(new File(replace));
+        LOGGER.info("标记后文件名:[{}]", replace);
+
+    }
+
 }

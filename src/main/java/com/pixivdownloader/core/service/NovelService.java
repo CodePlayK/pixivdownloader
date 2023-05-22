@@ -116,17 +116,19 @@ public class NovelService {
         String[] l1 = file1.list();
         String[] l2 = file2.list();
         if (l1 == null) {
-            l1 = new String[]{"NA"};
+            l1 = new String[]{"0"};
         }
         if (l2 == null) {
-            l2 = new String[]{"NA"};
+            l2 = new String[]{"0"};
         }
         List<String> R18GFielList = Arrays.asList(Objects.requireNonNull(l1));
         List<String> R18FielList = Arrays.asList(Objects.requireNonNull(l2));
         List<String> list = new ArrayList<>(R18GFielList);
         list.addAll(R18FielList);
         if (!list.isEmpty()) {
-            list.forEach(a -> fileSet.add(Integer.valueOf(StringUtils.substringBefore(a, "_"))));
+            list.forEach(a -> fileSet.add(
+                    Integer.valueOf(StringUtils.substringBefore(a, "_"))
+            ));
         }
         return fileSet;
     }
@@ -141,7 +143,7 @@ public class NovelService {
         File file1 = new File(filePathProperties.getNOVEL_PATH());
         String[] l1 = file1.list();
         if (l1 == null) {
-            l1 = new String[]{"NA"};
+            l1 = new String[]{"0"};
         }
         List<String> list = Arrays.asList(Objects.requireNonNull(l1));
         if (!list.isEmpty()) {
@@ -151,7 +153,7 @@ public class NovelService {
     }
 
     /**
-     * 让小说
+     * 获取小说
      *
      * @param url       url
      * @param localPath 本地路径
@@ -182,7 +184,7 @@ public class NovelService {
 
         for (NovelRanking novelRanking : Objects.requireNonNull(novelRankings)) {
             System.out.println(filesUtils.getBar(++i, m, "小说下载-" + Thread.currentThread().getName()));
-            //LOGGER.warn("[{}]已存在数据库中,跳过!", novelRanking.getNovelId());
+            LOGGER.warn("[{}]已存在数据库中,跳过!", novelRanking.getNovelId());
             writeSaveNovel(localPath, stringBuilder, stringBuilder1, novelRanking, fileSet, fileType, !set.contains(novelRanking.getNovelId()));
         }
     }
@@ -201,7 +203,7 @@ public class NovelService {
      */
     private void writeSaveNovel(String localPath, StringBuilder stringBuilder, StringBuilder stringBuilder1, NovelRanking novelRanking, Set<Integer> fileSet, String fileType, boolean saveFlag) throws IOException {
         if (fileSet.contains(novelRanking.getNovelId())) {
-            //LOGGER.warn("[{}]TXT已存在于本地文件,跳过!", novelRanking.getNovelId());
+            LOGGER.warn("[{}]TXT已存在于本地文件,跳过!", novelRanking.getNovelId());
             return;
         }
         String body = "";
