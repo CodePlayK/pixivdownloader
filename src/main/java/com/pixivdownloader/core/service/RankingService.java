@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -113,6 +115,23 @@ public class RankingService extends PicService {
         boolean flag = false;
 
         for (RankingPic rankingPic : bookmarkListAll) {
+            if ("".equals(rankingPic.getUrlS()) || null == rankingPic.getUrlS()
+                    || "0".equals(rankingPic.getAuthorDetails().getUserId()) || null == rankingPic.getAuthorDetails().getUserId()) {
+                LOGGER.warn("图片已被和谐或者被作者设为私有!标记！:{}", rankingPic.getId());
+                if (allPicIdPath.containsKey(rankingPic.getId())) {
+                    try {
+                        Path path = allPicIdPath.get(rankingPic.getId());
+                        Files.walk(path)
+                                .filter(a -> a.getFileName().toString().contains(rankingPic.getId()))
+                                .filter(a -> !a.getFileName().toString().contains("_DEL."))
+                                .forEach(
+                                        a -> filesUtils.markAsDeleted(a.toString())
+                                );
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
             flag = false;
             if (allPicIdPath.containsKey(rankingPic.getId())) {
                 LOGGER.warn("图片已经在收藏或者重复排行榜,跳过!:{}", rankingPic.getTitle(), rankingPic.getId());

@@ -3,6 +3,7 @@ package com.pixivdownloader.core;
 import com.pixivdownloader.core.constance.EntityPreset;
 import com.pixivdownloader.core.entity.Bookmark;
 import com.pixivdownloader.core.entity.ranking.RankingPic;
+import com.pixivdownloader.core.properties.FilePathProperties;
 import com.pixivdownloader.core.service.BookMarkListService;
 import com.pixivdownloader.core.service.NovelService;
 import com.pixivdownloader.core.service.R34BookmarkService;
@@ -25,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 public class PixivDownloaderRunner implements CommandLineRunner {
     private final Logger LOGGER = LogManager.getLogger();
     @Autowired
+    private FilePathProperties filePathProperties;
+    @Autowired
     protected FilesUtils filesUtils;
     @Autowired
     private BookMarkListService bookMarkDownloadService;
@@ -40,9 +43,9 @@ public class PixivDownloaderRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         LOGGER.info("初始化......");
-        test();
         filesUtils.getDir();
         cookieUtils.getCookies();
+        test();
         ThreadPoolExecutor executor = new ThreadPoolExecutor(6, 10, 200, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(10));
 

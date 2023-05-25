@@ -406,7 +406,7 @@ public class FilesUtils {
             try {
                 Files.walk(Paths.get(path)).filter(Files::isRegularFile)
                         .filter(a -> a.getFileName().toString().contains("_p0_"))
-                        .filter(a -> !a.getFileName().toString().contains("AI"))
+                        .filter(a -> !a.getFileName().toString().contains("_DEL."))
                         .forEach(
                                 a -> map.put(getPicIdbyPath(a.getFileName().toString()), a.getParent())
                         );

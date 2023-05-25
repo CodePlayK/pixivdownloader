@@ -103,18 +103,15 @@ public class BookMarkListService extends PicService {
 
         HashMap<String, Integer> existFile = filesUtils.getExistFile();
         for (Bookmark bookmark : bookmarkList) {
-            if (null != existFile.get(bookmark.getBookmarkId()) && existFile.get(bookmark.getBookmarkId()) >= bookmark.getPageCount()) {
-                skipCount++;
-                continue;
-            }
-            if ("".equals(bookmark.getUrlS()) || null == bookmark.getUrlS()) {
-                LOGGER.warn("图片地址为空!跳过!:{}", bookmark.getId());
+            if ("".equals(bookmark.getUrlS()) || null == bookmark.getUrlS()
+                    || "0".equals(bookmark.getAuthorDetails().getUserId()) || null == bookmark.getAuthorDetails().getUserId()) {
+                LOGGER.warn("图片已被和谐或者被作者设为私有!标记！:{}", bookmark.getId());
                 if (allPicIdPath.containsKey(bookmark.getId())) {
                     try {
                         Path path = allPicIdPath.get(bookmark.getId());
                         Files.walk(path)
                                 .filter(a -> a.getFileName().toString().contains(bookmark.getId()))
-                                .filter(a -> !a.getFileName().toString().contains("DEL"))
+                                .filter(a -> !a.getFileName().toString().contains("_DEL."))
                                 .forEach(
                                         a -> filesUtils.markAsDeleted(a.toString())
                                 );
@@ -122,6 +119,10 @@ public class BookMarkListService extends PicService {
                         throw new RuntimeException(e);
                     }
                 }
+                skipCount++;
+                continue;
+            }
+            if (null != existFile.get(bookmark.getBookmarkId()) && existFile.get(bookmark.getBookmarkId()) >= bookmark.getPageCount()) {
                 skipCount++;
                 continue;
             }
