@@ -51,10 +51,11 @@ public interface EntityPreset {
         RANKINGURL("https://www.pixiv.net/touch/ajax/ranking/illust?type=all&lang=zh&mode="),
         SINGLEPICURL("https://www.pixiv.net/touch/ajax/illust/details?&ref=&lang=zh&illust_id="),
         MULTIPICDTLURL("https://www.pixiv.net/touch/ajax/illust/details/many?"),
-        PIXIVDOMAIN("pixiv.net"),
+        PIXIVDOMAIN("pixiv"),
         URLZIP("_ugoira600x600.zip"),
         REFERER("https://www.pixiv.net/artworks/94479068"),
         USERAGENT("Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Mobile Safari/537.36 Edg/96.0.1054.41"),
+        USERAGENT1("Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Mobile Safari/537.36"),
         ;
 
         public String URL;

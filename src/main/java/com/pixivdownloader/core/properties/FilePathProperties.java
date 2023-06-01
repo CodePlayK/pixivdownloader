@@ -3,7 +3,9 @@ package com.pixivdownloader.core.properties;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 文件路径属性
@@ -31,6 +33,10 @@ public class FilePathProperties {
     String RANKING;
     String R34_PATH;
     List<String> ALL_PATH;
+    /**
+     * 所有涩图的id以及其所在的目录
+     */
+    Map<String, Path> ALL_PIC_PATH;
 
 
     private FilePathProperties() {

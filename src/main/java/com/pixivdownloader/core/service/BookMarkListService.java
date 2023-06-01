@@ -49,7 +49,6 @@ public class BookMarkListService extends PicService {
      */
     public List<Bookmark> getBookmarkList() {
 
-        Map<String, Path> allPicIdPath = filesUtils.getAllPicIdbyPath(filePathProperties.getALL_PATH());
         final String BOOKMARK_LIST_URL = EntityPreset.HttpEnum.BOOKMARK_LIST_URL_BEGIN.URL + cookieUtils.getUSERID()
                 + EntityPreset.HttpEnum.BOOKMARK_LIST_URL_END.URL;
         int lastPage = 1;
@@ -72,6 +71,9 @@ public class BookMarkListService extends PicService {
         assert bookmarkList != null;
         bookmarkList.clear();
         Map<Integer, Integer> map = requestUtils.divideNumByPartNum(1, lastPage, THREAD_SIZE);
+        if (lastPage < THREAD_SIZE) {
+            map = requestUtils.divideNumByPartNum(1, lastPage, 1);
+        }
         ThreadPoolExecutor executor = new ThreadPoolExecutor(6, 10, 200, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(5));
         List<Future> futures = new ArrayList<>();
@@ -106,9 +108,9 @@ public class BookMarkListService extends PicService {
             if ("".equals(bookmark.getUrlS()) || null == bookmark.getUrlS()
                     || "0".equals(bookmark.getAuthorDetails().getUserId()) || null == bookmark.getAuthorDetails().getUserId()) {
                 LOGGER.warn("图片已被和谐或者被作者设为私有!标记！:{}", bookmark.getId());
-                if (allPicIdPath.containsKey(bookmark.getId())) {
+                if (filePathProperties.getALL_PIC_PATH().containsKey(bookmark.getId())) {
                     try {
-                        Path path = allPicIdPath.get(bookmark.getId());
+                        Path path = filePathProperties.getALL_PIC_PATH().get(bookmark.getId());
                         Files.walk(path)
                                 .filter(a -> a.getFileName().toString().contains(bookmark.getId()))
                                 .filter(a -> !a.getFileName().toString().contains("_DEL."))

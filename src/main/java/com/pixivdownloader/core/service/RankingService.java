@@ -80,7 +80,6 @@ public class RankingService extends PicService {
      * @return 排行榜信息列表
      */
     public List<RankingPic> getPicsInfoByIds(List<RankingPic> ids) {
-        Map<String, Path> allPicIdPath = filesUtils.getAllPicIdbyPath(filePathProperties.getALL_PATH());
 
         RANKINGPATH = filePathProperties.getRANKING();
         List<RankingPic> bookmarkListAll = new ArrayList<>();
@@ -92,7 +91,12 @@ public class RankingService extends PicService {
             t++;
             if (t == 19) {
                 url = builder.toString();
-                String bodyByUrl = requestUtils.getBodyByUrl(url);
+                String bodyByUrl = null;
+                try {
+                    bodyByUrl = requestUtils.getBodyByUrl(url);
+                } catch (Exception e) {
+                    continue;
+                }
                 String multiPicBody = requestUtils.getMultiPicBody(bodyByUrl);
                 List<RankingPic> bookmarkList = JSON.parseArray(multiPicBody, RankingPic.class);
                 builder = new StringBuilder(MULTIPICDTLURL.URL);
@@ -102,11 +106,15 @@ public class RankingService extends PicService {
 
         }
         url = builder.toString();
-        String bodyByUrl = requestUtils.getBodyByUrl(url);
-        String multiPicBody = requestUtils.getMultiPicBody(bodyByUrl);
-        List<RankingPic> bookmarkList = JSON.parseArray(multiPicBody, RankingPic.class);
-        bookmarkListAll.addAll(bookmarkList);
+        String bodyByUrl = null;
+        try {
+            bodyByUrl = requestUtils.getBodyByUrl(url);
 
+            String multiPicBody = requestUtils.getMultiPicBody(bodyByUrl);
+            List<RankingPic> bookmarkList = JSON.parseArray(multiPicBody, RankingPic.class);
+            bookmarkListAll.addAll(bookmarkList);
+        } catch (Exception e) {
+        }
         List<String> autherId = exceptionProperties.getAutherId();
         List<String> picId = exceptionProperties.getPicId();
         List<String> tags = exceptionProperties.getTags();
@@ -118,9 +126,9 @@ public class RankingService extends PicService {
             if ("".equals(rankingPic.getUrlS()) || null == rankingPic.getUrlS()
                     || "0".equals(rankingPic.getAuthorDetails().getUserId()) || null == rankingPic.getAuthorDetails().getUserId()) {
                 LOGGER.warn("图片已被和谐或者被作者设为私有!标记！:{}", rankingPic.getId());
-                if (allPicIdPath.containsKey(rankingPic.getId())) {
+                if (filePathProperties.getALL_PIC_PATH().containsKey(rankingPic.getId())) {
                     try {
-                        Path path = allPicIdPath.get(rankingPic.getId());
+                        Path path = filePathProperties.getALL_PIC_PATH().get(rankingPic.getId());
                         Files.walk(path)
                                 .filter(a -> a.getFileName().toString().contains(rankingPic.getId()))
                                 .filter(a -> !a.getFileName().toString().contains("_DEL."))
@@ -133,8 +141,8 @@ public class RankingService extends PicService {
                 }
             }
             flag = false;
-            if (allPicIdPath.containsKey(rankingPic.getId())) {
-                LOGGER.warn("图片已经在收藏或者重复排行榜,跳过!:{}", rankingPic.getTitle(), rankingPic.getId());
+            if (filePathProperties.getALL_PIC_PATH().containsKey(rankingPic.getId())) {
+                LOGGER.warn("图片已经在收藏或者重复排行榜,跳过!:[{}]{}", rankingPic.getId(), rankingPic.getTitle());
                 continue;
             }
             if (autherId.contains(rankingPic.getAuthorDetails().getUserId()) ||

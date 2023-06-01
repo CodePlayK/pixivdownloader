@@ -84,7 +84,7 @@ public class FilesUtils {
         LOGGER.info("当前目录:{}", file.getAbsolutePath());
         HashMap<String, String> map = new HashMap<>();
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+            BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8));
             String s = null;
             while ((s = br.readLine()) != null) {//使用readLine方法，一次读一行
                 LOGGER.info(s);
@@ -130,6 +130,7 @@ public class FilesUtils {
                 filePathProperties.getNONEH_COMIC_PATH(),
                 filePathProperties.getRANKING());
         filePathProperties.setALL_PATH(ALL_PATH);
+        filePathProperties.setALL_PIC_PATH(getAllPicIdbyPath(filePathProperties.getALL_PATH()));
 
     }
 
@@ -374,7 +375,9 @@ public class FilesUtils {
      * @return
      */
     public String getBar(int i, int max, String threadName) {
-
+        if (max == 0) {
+            max = 1;
+        }
         int barLength = 40;
         char[] chars = new char[barLength];
         int j = i * barLength / max;
@@ -404,6 +407,7 @@ public class FilesUtils {
         HashMap<String, Path> map = new HashMap<>();
         for (String path : paths) {
             try {
+                LOGGER.info("开始获取[{}]所有涩图ID与路径……", path);
                 Files.walk(Paths.get(path)).filter(Files::isRegularFile)
                         .filter(a -> a.getFileName().toString().contains("_p0_"))
                         .filter(a -> !a.getFileName().toString().contains("_DEL."))
@@ -415,6 +419,7 @@ public class FilesUtils {
                 throw new RuntimeException(e);
             }
         }
+        LOGGER.info("本地总计获取到[{}]条涩图……", map.size());
         return map;
     }
 
